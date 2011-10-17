@@ -1,6 +1,8 @@
 package org.datadryad.submission;
 
 import javax.mail.Address;
+import javax.mail.Multipart;
+import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
@@ -114,14 +116,30 @@ public class DryadEmailSubmission extends HttpServlet {
 						+ " " + contentID + " " + encoding);
 			}
 
-			if (contentType.equals("text/plain") || contentType instanceof String) {
+			Part part = null;
+			
+			if ("text/plain".equals(contentType)){
+			    part = (Part)mime;   //
+			}
+			else if (contentType != null && contentType.startsWith("multipart/alternative")){
+			    Multipart mp = (Multipart)mime.getContent();
+			    for (int i=0, count = mp.getCount();i<count;i++){
+			        Part p = mp.getBodyPart(i);
+			        String partContentType = p.getContentType();
+			        if (partContentType.startsWith("text/plain")){
+			            part = p;
+			            break;
+			        }
+			    }
+			}
+			if (part != null) {
 				String message;
 				
 				if (encoding != null) {
-					message = (String) mime.getContent();
+					message = (String) part.getContent();
 				}
 				else {
-					InputStream in = mime.getInputStream();
+					InputStream in = part.getInputStream();
 					InputStreamReader isr = new InputStreamReader(in, "UTF-8");
 					BufferedReader br = new BufferedReader(isr);
 					StringBuilder builder = new StringBuilder();
@@ -207,8 +225,8 @@ public class DryadEmailSubmission extends HttpServlet {
 				toBrowser.close();
 			}
 			else {
-				throw new SubmissionException("Unexpected email type: "
-						+ mime.getContent().getClass().getName());
+				throw new SubmissionException("Unexpected email type: " 
+						+ mime.getContent().getClass().getName() + " reported content-type was " + contentType);
 			}
 		}
 		catch (Exception details) {
@@ -393,6 +411,9 @@ public class DryadEmailSubmission extends HttpServlet {
 
 				if (m.find()) {
 					journalName = StringUtils.stripToEmpty(m.group(2));
+					if (journalName.codePointAt(0) == 160){          //Journal of Heredity has started inserting NBSP in several fields, including journal title
+					    journalName = journalName.substring(1);
+					}
 				}
 
 				lines.add(line);
