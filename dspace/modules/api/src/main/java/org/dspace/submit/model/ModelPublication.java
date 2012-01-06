@@ -532,7 +532,8 @@ public class ModelPublication
 
 				if(ttext.equals("in review") ||
 				   ttext.equals("submitted") ||
-				   ttext.equals("under review")) {
+				   ttext.equals("under review") ||
+				   ttext.equals("revision under review")) {
 				    pbean.setSkipReviewStep(false);
 				} else if(ttext.equals("accepted") ||
 					  ttext.equals("rejected") ||
