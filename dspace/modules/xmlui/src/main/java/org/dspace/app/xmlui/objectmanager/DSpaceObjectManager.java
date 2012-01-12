@@ -1,18 +1,48 @@
-/**
- * The contents of this file are subject to the license and copyright
- * detailed in the LICENSE and NOTICE files at the root of the source
- * tree and available online at
+/*
+ * DSpaceObjectManager.java
  *
- * http://www.dspace.org/license/
+ * Version: $Revision$
  *
+ * Date: $Date$
  *
+ * Copyright (c) 2002, Hewlett-Packard Company and Massachusetts
+ * Institute of Technology.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * - Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *
+ * - Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * - Neither the name of the Hewlett-Packard Company nor the name of the
+ * Massachusetts Institute of Technology nor the names of their
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
  */
+
 package org.dspace.app.xmlui.objectmanager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.dspace.app.xmlui.wing.ObjectManager;
 import org.dspace.app.xmlui.wing.WingException;
@@ -22,7 +52,6 @@ import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.core.ConfigurationManager;
-import org.dspace.handle.HandleManager;
 
 
 /**
@@ -30,15 +59,11 @@ import org.dspace.handle.HandleManager;
  * is able identify all DSpace items, communities, and collections.
  * 
  * @author Scott Phillips
- *
- * @Overridden by Fabio Bolognesi
- *
- * To apply the following patch https://jira.duraspace.org/browse/DS-1070
  */
 
 public class DSpaceObjectManager implements ObjectManager
 {
-  
+  	
     /**
      * Manage the given object, if this manager is unable to manage the object then false must be returned.
      * 
@@ -48,10 +73,26 @@ public class DSpaceObjectManager implements ObjectManager
      */
     public boolean manageObject(Object object) throws WingException
     {
-		return (object instanceof BrowseItem) || 
-               (object instanceof Item) || 
-               (object instanceof Collection) || 
-               (object instanceof Community);
+    	// First check that the object is of a type we can manage.
+    	if (object instanceof BrowseItem)
+    	{
+    		return true;
+    	}
+    	else if (object instanceof Item)
+    	{
+    		return true;
+    	}
+    	else if (object instanceof Collection)
+    	{
+    		return true;
+    	}
+    	else if (object instanceof Community)
+    	{
+    		return true;
+    	}
+    	
+    	// We are unable to manage this object.
+    	return false;
     }
 	
 	
@@ -114,14 +155,13 @@ public class DSpaceObjectManager implements ObjectManager
 			
 		return null;
 	}
-
-    /**
-     * Return a globally unique identifier for the repository. For dspace, we
-     * use the handle prefix.
-     */
+	
+	/**
+	 * Return a globably unique identifier for the repository. For dspace, we use the handle prefix.
+	 */
 	public String getRepositoryIdentifier(Object object) throws WingException
 	{
-		return HandleManager.getPrefix();
+		return ConfigurationManager.getProperty("handle.prefix");
 	}
 	
 	/**
@@ -137,11 +177,11 @@ public class DSpaceObjectManager implements ObjectManager
 	 * For the DSpace implementation we just return a hash of one entry which contains
 	 * a reference to this repository's metadata.
 	 */
-	public Map<String,String> getAllManagedRepositories() throws WingException
+	public HashMap<String,String> getAllManagedRepositories() throws WingException
 	{
-		String handlePrefix = HandleManager.getPrefix();
+		String handlePrefix = ConfigurationManager.getProperty("handle.prefix");
 		
-		Map<String,String> allRepositories = new HashMap<String,String>();
+		HashMap<String,String> allRepositories = new HashMap<String,String>();
 		allRepositories.put(handlePrefix, "/metadata/internal/repository/"+handlePrefix +"/mets.xml");
 		
 		return allRepositories;
