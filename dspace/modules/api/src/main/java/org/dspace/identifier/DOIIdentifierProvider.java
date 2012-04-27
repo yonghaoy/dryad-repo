@@ -285,9 +285,7 @@ public class DOIIdentifierProvider extends IdentifierProvider implements org.spr
     }
 
     public DSpaceObject resolve(Context context, String identifier, String... attributes) throws IdentifierNotFoundException, IdentifierNotResolvableException {
-        //Check if we really have a doi identifier
-
-        log.warn("DOIIdentofierService: start resolve() identifier ==>>  " + identifier);
+        log.debug("start resolve() identifier ==>>  " + identifier);
 
         if (identifier != null && identifier.startsWith("doi:")) {
 
@@ -297,7 +295,7 @@ public class DOIIdentifierProvider extends IdentifierProvider implements org.spr
 
             String value = dbDOI.getInternalIdentifier();
 
-            log.warn("DOIIdentofierService: resolve to (before replace) ==>>" + value);
+            log.debug("resolve to (before replace) ==>>" + value);
 
             if (value != null) {
                 // Ask Parent Service to retrieve internal reference to resource identified in the value.
