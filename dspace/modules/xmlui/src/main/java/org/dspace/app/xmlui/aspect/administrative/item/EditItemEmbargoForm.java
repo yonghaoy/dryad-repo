@@ -127,11 +127,10 @@ public class EditItemEmbargoForm extends AbstractDSpaceTransformer {
 
     private String getDateEmbargoString(Item item) throws SQLException, AuthorizeException, IOException {
         DCDate embargoDate = EmbargoManager.getEmbargoDate(context, item);
-        String dateString = null;
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        if(embargoDate != null)
-            dateString = format.format(embargoDate.toDate());
-        return dateString;
+        if (embargoDate != null)
+        	return embargoDate.toString();
+        else
+         	return null;
     }
 
 
