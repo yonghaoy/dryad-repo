@@ -219,7 +219,7 @@ public class DOIIdentifierProvider extends IdentifierProvider implements org.spr
             // MINT Identifier || .
             DOI doi_ = calculateDOI(context, doi, item, history);
 
-            log.warn("DOI just minted: " + doi_);
+            log.info("DOI just minted: " + doi_);
 
             doi = doi_.toString();
             mint(doi_, register, createListMetadata(item));
@@ -385,7 +385,7 @@ public class DOIIdentifierProvider extends IdentifierProvider implements org.spr
 
         doi = getDOI(aDoi, item);
 
-        log.warn("calculateDOI() doi already exist? : " + (doi!=null));
+        log.debug("calculateDOI() doi already exist? : " + (doi!=null));
 
         // If our DOI doesn't exist, then we need to mint one
         if (doi == null) {
