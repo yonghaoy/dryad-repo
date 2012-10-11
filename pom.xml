@@ -281,7 +281,56 @@
               <artifactId>dspace-discovery-provider</artifactId>
               <version>1.7.3-SNAPSHOT</version>
           </dependency>
-         <!-- DSpace third Party Dependencies -->
+
+	  <!-- Explicitly Specify Latest Version of Spring -->
+        <dependency>
+            <artifactId>spring-core</artifactId>
+            <groupId>org.springframework</groupId>
+            <version>3.1.2.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>spring-beans</artifactId>
+            <groupId>org.springframework</groupId>
+            <version>3.1.2.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>spring-aop</artifactId>
+            <groupId>org.springframework</groupId>
+            <version>3.1.2.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>spring-context</artifactId>
+            <groupId>org.springframework</groupId>
+            <version>3.1.2.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>spring-tx</artifactId>
+            <groupId>org.springframework</groupId>
+            <version>3.1.2.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>spring-jdbc</artifactId>
+            <groupId>org.springframework</groupId>
+            <version>3.1.2.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>spring-web</artifactId>
+            <groupId>org.springframework</groupId>
+            <version>3.1.2.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>spring-webmvc</artifactId>
+            <groupId>org.springframework</groupId>
+            <version>3.1.2.RELEASE</version>
+        </dependency>
+
          <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
