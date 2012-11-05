@@ -127,6 +127,12 @@
 			<version>4.21</version>
 		</dependency>
 
+       <dependency>
+           <groupId>com.atmire</groupId>
+           <artifactId>atmire-responselogging-api</artifactId>
+           <version>1.10.0</version>
+       </dependency>
+
    </dependencies>
 
 </project>
