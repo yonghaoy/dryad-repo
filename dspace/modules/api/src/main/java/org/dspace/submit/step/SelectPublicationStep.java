@@ -264,6 +264,12 @@ public class SelectPublicationStep extends AbstractProcessingStep {
     }
 
 
+    private void addPMID(Context context, Item item, String identifier){
+
+
+    }
+
+
     /**
        Process a PMID entered by the submitter. Use the PMID metadata to initialize publication information.
      **/
