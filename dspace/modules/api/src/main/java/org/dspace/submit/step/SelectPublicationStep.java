@@ -18,6 +18,8 @@ import org.dspace.submit.model.ModelPublication;
 import org.dspace.submit.utils.DryadJournalSubmissionUtils;
 import org.dspace.workflow.WorkflowRequirementsManager;
 import org.jdom.Element;
+import org.jdom.Content;
+import org.jdom.Text;
 import org.jdom.input.DOMBuilder;
 import org.jdom.input.SAXBuilder;
 import org.omg.CORBA.PUBLIC_MEMBER;
@@ -270,12 +272,17 @@ public class SelectPublicationStep extends AbstractProcessingStep {
 
     private void addPMID(Context context, Item item, String identifier){
 
+	log.warn("Trying to add a PMID for " + identifier);
 	final String queryString = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmod=xml&term=" + identifier + "%5Bdoi%5D"; 
 
         String pmid = null;
 	try{
 	    Element jElement = retrieveXML(queryString);
 	    
+
+	    if (jElement == null)
+		log.warn("query for " + identifier + " failed");
+
 	    if (jElement != null){
 		List<Element> children = jElement.getChildren();
 		for (Element child : children){
@@ -287,7 +294,17 @@ public class SelectPublicationStep extends AbstractProcessingStep {
 		    if ("IdList".equals(child.getName())){
 			List<Element> idList = child.getChildren();
 			for (Element idElement : idList){
-			    List<Node> idNode = idElement.getChildren();
+			    List <Content> cList = idElement.getContent();
+			    Iterator<Content> it = cList.iterator();
+			    while (pmid == null && it.hasNext()){
+				Content c = it.next();
+				if (c instanceof Text){
+				    if (!"".equals(((Text)c).getTextNormalize())){
+					pmid = ((Text)c).getTextNormalize();
+				    }
+				}
+			    }
+			    log.info("Content is " + pmid);
 			}
 		    }
 		}
