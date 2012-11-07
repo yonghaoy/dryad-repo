@@ -279,7 +279,6 @@ public class SelectPublicationStep extends AbstractProcessingStep {
 	try{
 	    Element jElement = retrieveXML(queryString);
 	    
-
 	    if (jElement == null)
 		log.warn("query for " + identifier + " failed");
 
@@ -312,7 +311,12 @@ public class SelectPublicationStep extends AbstractProcessingStep {
 
         }catch (Exception ex){
             log.error("Error while trying to retrieve PMID " + identifier, ex);
+	    return;
         }
+
+	if (pmid != null)
+	    item.addMetadata("dc","relation", "isreferencedby", null, "PMID:" + pmid);
+	
     }
 
 
