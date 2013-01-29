@@ -8,37 +8,34 @@ import org.apache.commons.httpclient.methods.*;
 import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.*;
+import org.dspace.core.*;
 
 public class CDLDataCiteServiceTest {
 
     private static Logger log = Logger.getLogger(CDLDataCiteServiceTest.class);
-    private static final String BASEURL = "https://n2t.net/ezid";
-
+    private String baseUrl = "https://n2t.net/ezid";
     private String myUsername;
     private String myPassword;
 
     public String publisher = null;
 
-
     public static void main(String[] args) throws IOException {
-        String username = args[0];
-        String password = args[1];
-
         Map<String, String> metadata = createMetadataListXML();
-        CDLDataCiteServiceTest service = new CDLDataCiteServiceTest(username, password);
+        CDLDataCiteServiceTest service = new CDLDataCiteServiceTest();
         String updateOutput = service.update("10.5061/DRYAD.2222", metadata);
 	log.info("Output of the update command: " + updateOutput);
     }
 
 
-    public CDLDataCiteServiceTest(final String aUsername, final String aPassword) {
-        myUsername = aUsername;
-        myPassword = aPassword;
+    public CDLDataCiteServiceTest() {
+	myUsername = ConfigurationManager.getProperty("doi.service.username");
+	myPassword = ConfigurationManager.getProperty("doi.service.password");
+	baseUrl =  ConfigurationManager.getProperty("doi.service.url");
     }
 
 
     public String update(String aDOI,Map<String, String> metadata) throws IOException {
-        PostMethod post = new PostMethod(BASEURL + "/id/doi%3A" + aDOI);
+        PostMethod post = new PostMethod(baseUrl + "/id/doi%3A" + aDOI);
         return executeHttpMethod(metadata, post);
     }
 

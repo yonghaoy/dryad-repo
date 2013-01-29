@@ -83,7 +83,7 @@ public class CDLDataCiteService {
      */
     public String registerDOI(String aDOI, String aURL, Map<String, String> metadata) throws IOException {
 
-        if (ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)) {
+        if (ConfigurationManager.getBooleanProperty("doi.service.connected", false)) {
             if (aDOI.startsWith("doi")) {
                 aDOI = aDOI.substring(4);
             }
@@ -96,7 +96,7 @@ public class CDLDataCiteService {
 
     public String lookup(String aDOI) throws IOException {
 
-        if (ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)) {
+        if (ConfigurationManager.getBooleanProperty("doi.service.connected", false)) {
             if (aDOI.startsWith("doi")) {
                 aDOI = aDOI.substring(4);
             }
@@ -127,7 +127,7 @@ public class CDLDataCiteService {
      */
     public String update(String aDOI, String target, Map<String, String> metadata) throws IOException {
 	log.debug("updating metadata for DOI: " + aDOI + " with redirect URL " + target);
-        if (!ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)) {
+        if (!ConfigurationManager.getBooleanProperty("doi.service.connected", false)) {
 	    return "datacite.notConnected";
 	}
 
@@ -174,7 +174,7 @@ public class CDLDataCiteService {
 
     private String changePrefixDOIForTestEnv(String doi) {
         // if test env
-        if (ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)) {
+        if (ConfigurationManager.getBooleanProperty("doi.service.connected", false)) {
             doi = doi.substring(doi.indexOf('/') + 1);
             doi = "doi:10.5072/" + doi;
         }

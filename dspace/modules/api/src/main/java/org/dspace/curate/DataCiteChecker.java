@@ -31,7 +31,7 @@ public class DataCiteChecker extends AbstractCurationTask{
     @Override
     public int perform(DSpaceObject dso) throws IOException {
 
-        if(!ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)){
+        if(!ConfigurationManager.getBooleanProperty("doi.service.connected", false)){
             this.setResult("Functionality not supported in test environment.");
             return Curator.CURATE_FAIL;
         }
@@ -41,7 +41,7 @@ public class DataCiteChecker extends AbstractCurationTask{
         Item item = (Item)dso;
 
         // TODO TRY OUT Spring Configuraion
-        CDLDataCiteService dataCiteService = new CDLDataCiteService(null, null);
+        CDLDataCiteService dataCiteService = new CDLDataCiteService();
         String doi = DOIIdentifierProvider.getDoiValue(item);
 
         // For local TEST!

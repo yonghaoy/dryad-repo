@@ -299,14 +299,12 @@ public class Minter implements org.springframework.beans.factory.InitializingBea
 	    throw new RuntimeException(message);
 	}
 	
-	String doiUsername = configurationService.getProperty("doi.username");
-	String doiPassword = configurationService.getProperty("doi.password");
 	String length = null;
 	
 	myHdlPrefix = configurationService.getProperty("handle.prefix");
-	myDoiService = new CDLDataCiteService(doiUsername, doiPassword);
+	myDoiService = new CDLDataCiteService();
 	myHostname = configurationService.getProperty("dryad.url");
-	myDataCiteConnectionIsLive = configurationService.getPropertyAsType("doi.datacite.connected",boolean.class);
+	myDataCiteConnectionIsLive = configurationService.getPropertyAsType("doi.service.connected",boolean.class);
 	myDataPkgColl = configurationService.getProperty("stats.datapkgs.coll");
 	myDataFileColl = configurationService.getProperty("stats.datafiles.coll");
 	

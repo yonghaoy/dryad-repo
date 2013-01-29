@@ -29,7 +29,7 @@ public class DataCiteSynchronizer extends AbstractCurationTask{
     @Override
     public int perform(DSpaceObject dso) throws IOException {
 
-        if(!ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)){
+        if(!ConfigurationManager.getBooleanProperty("doi.service.connected", false)){
             this.setResult("Functionality not supported in test environment.");
             return Curator.CURATE_FAIL;
         }
@@ -39,7 +39,7 @@ public class DataCiteSynchronizer extends AbstractCurationTask{
 
         Item item = (Item)dso;
 
-        CDLDataCiteService dataCiteService = new CDLDataCiteService(ConfigurationManager.getProperty("doi.username"), ConfigurationManager.getProperty("doi.password"));
+        CDLDataCiteService dataCiteService = new CDLDataCiteService();
 
 
         // for Local TEST

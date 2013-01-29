@@ -125,7 +125,7 @@ public class ViewItem extends AbstractDSpaceTransformer {
 		Item pkg = (Item) HandleManager.resolveToDataPackage(context, handle);
 
 		// Find out whether our theme should be localized
-		String localize = ConfigurationManager.getProperty("dryad.localize");
+		String localize = ConfigurationManager.getProperty("doi.localresolution");
 
 		if (localize != null && localize.equals("true")) {
 			pageMeta.addMetadata("dryad", "localize").addContent("true");
