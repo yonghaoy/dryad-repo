@@ -188,7 +188,7 @@ public class ItemViewer extends AbstractDSpaceTransformer implements
         pageMeta.addTrail().addContent(T_trail);
 
         // Find out whether our theme should be localized
-        String localize = ConfigurationManager.getProperty("dryad.localize");
+        String localize = ConfigurationManager.getProperty("doi.localresolution");
 
         if (localize != null && localize.equals("true")) {
             pageMeta.addMetadata("dryad", "localize").addContent("true");
