@@ -44,7 +44,7 @@ public class CDLDataCiteConsumer implements Consumer {
                         Item item = (Item) event.getSubject(ctx);
                         if (item != null && item.isArchived()){
 			    log.debug("updating DataCite settings for " + item.getHandle() + ", internal itemid=" + item.getID());
-                            CDLDataCiteService dataCiteService = new CDLDataCiteService(ConfigurationManager.getProperty("doi.username"), ConfigurationManager.getProperty("doi.password"));
+                            CDLDataCiteService dataCiteService = new CDLDataCiteService();
 
                             String doi = getDoiValue(item);
 

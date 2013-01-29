@@ -37,10 +37,9 @@ public class CDLDataCiteService {
 
     private static final Logger log = Logger.getLogger(CDLDataCiteService.class);
 
-    private static final String BASEURL = "https://n2t.net/ezid";
-
-    private String myUsername;
-    private String myPassword;
+    private String baseUrl = "https://n2t.net/ezid";
+    private String myUsername = "";
+    private String myPassword = "";
 
     public static final String DC_CREATOR = "dc.creator";
     public static final String DC_TITLE = "dc.title";
@@ -68,9 +67,10 @@ public class CDLDataCiteService {
     int notProcessItems = 0;
     int itemsWithErrors = 0;
 
-    public CDLDataCiteService(final String aUsername, final String aPassword) {
-        myUsername = aUsername;
-        myPassword = aPassword;
+    public CDLDataCiteService() {
+        myUsername = ConfigurationManager.getProperty("doi.service.username");
+	myPassword = ConfigurationManager.getProperty("doi.service.password");
+	baseUrl =  ConfigurationManager.getProperty("doi.service.url");
     }
 
     /**
@@ -88,7 +88,7 @@ public class CDLDataCiteService {
                 aDOI = aDOI.substring(4);
             }
 
-            PutMethod put = new PutMethod(BASEURL + "/id/doi%3A" + aDOI);
+            PutMethod put = new PutMethod(baseUrl + "/id/doi%3A" + aDOI);
             return executeHttpMethod(aURL, metadata, put);
         }
         return "datacite.notConnected";
@@ -101,7 +101,7 @@ public class CDLDataCiteService {
                 aDOI = aDOI.substring(4);
             }
 
-            GetMethod get = new GetMethod(BASEURL + "/id/doi%3A" + aDOI);
+            GetMethod get = new GetMethod(baseUrl + "/id/doi%3A" + aDOI);
             HttpMethodParams params = new HttpMethodParams();
 
             get.setRequestHeader("Content-Type", "text/plain");
@@ -136,7 +136,7 @@ public class CDLDataCiteService {
 	}
 	
 	aDOI = aDOI.toUpperCase();
-	String fullURL = BASEURL + "/id/doi%3A" + aDOI;
+	String fullURL = baseUrl + "/id/doi%3A" + aDOI;
 	log.debug("posting to " + fullURL);
 	PostMethod post = new PostMethod(fullURL);
 	
@@ -313,26 +313,22 @@ public class CDLDataCiteService {
 
 	log.debug("========== Starting DOI command-line service ===========");
 
+	// SYNCALL: args= syncall
+        if (args[0].equals("syncall")) {
+            service = new CDLDataCiteService();
+            service.syncAll();
+        }
         // LOOKUP: args[0]=DOI
-        if (args.length == 1) {
-            service = new CDLDataCiteService(null, null);
+        else if (args.length == 1) {
+            service = new CDLDataCiteService();
             String doiID = args[0];
             System.out.println(service.lookup(doiID));
         }
-        // SYNCALL: args= USERNAME PASSWORD syncall
-        else if (args.length == 3 && args[2].equals("syncall")) {
-            String username = args[0];
-            String password = args[1];
-            service = new CDLDataCiteService(username, password);
-            service.syncAll();
-        }
-        // REGISTER || UPDATE: args= USERNAME PASSWORD DOI URL ACTION
-        else if (args.length == 5) {
-            String username = args[0];
-            String password = args[1];
-            String doiID = args[2];
-            String target = args[3];
-            String action = args[4];
+        // REGISTER || UPDATE: args= DOI URL ACTION
+        else if (args.length == 3) {
+	    String doiID = args[0];
+            String target = args[1];
+            String action = args[2];
 
             org.dspace.core.Context context = null;
             try {
@@ -364,7 +360,7 @@ public class CDLDataCiteService {
                 metadata = createMetadataList((Item) dso);
             }
 
-            service = new CDLDataCiteService(username, password);
+            service = new CDLDataCiteService();
 
             if (action.equals("register")) {
 
