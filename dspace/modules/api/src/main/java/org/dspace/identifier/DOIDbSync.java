@@ -196,14 +196,6 @@ public class DOIDbSync {
             doi_ = new DOI(dc_identifier, item);
         }
 
-        if(doi_!=null && !isTest){
-            String urlString = ConfigurationManager.getProperty("doi.service.url") + "?item=" + doi_.getTargetURL().toString() + "&doi=" + doi_.toString();
-            ps.println("Servlet invocation: " + urlString);
-            if(ps!=null){
-                ps.println("Servlet response: " + getUrlResponse(urlString));
-                ps.println();
-            }
-        }
         return doi_;
     }
 
