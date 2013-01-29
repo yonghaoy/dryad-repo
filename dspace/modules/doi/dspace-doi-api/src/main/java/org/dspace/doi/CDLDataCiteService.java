@@ -84,9 +84,7 @@ public class CDLDataCiteService {
     public String registerDOI(String aDOI, String aURL, Map<String, String> metadata) throws IOException {
 
         if (ConfigurationManager.getBooleanProperty("doi.service.connected", false)) {
-            if (aDOI.startsWith("doi")) {
-                aDOI = aDOI.substring(4);
-            }
+	    aDOI = normalizeDOI(aDOI);
 
             PutMethod put = new PutMethod(baseUrl + "/id/doi%3A" + aDOI);
             return executeHttpMethod(aURL, metadata, put);
@@ -97,9 +95,7 @@ public class CDLDataCiteService {
     public String lookup(String aDOI) throws IOException {
 
         if (ConfigurationManager.getBooleanProperty("doi.service.connected", false)) {
-            if (aDOI.startsWith("doi")) {
-                aDOI = aDOI.substring(4);
-            }
+	    aDOI = normalizeDOI(aDOI);
 
             GetMethod get = new GetMethod(baseUrl + "/id/doi%3A" + aDOI);
             HttpMethodParams params = new HttpMethodParams();
@@ -131,11 +127,8 @@ public class CDLDataCiteService {
 	    return "datacite.notConnected";
 	}
 
-	if (aDOI.startsWith("doi")) {
-	    aDOI = aDOI.substring(4);
-	}
-	
-	aDOI = aDOI.toUpperCase();
+	aDOI = normalizeDOI(aDOI);
+
 	String fullURL = baseUrl + "/id/doi%3A" + aDOI;
 	log.debug("posting to " + fullURL);
 	PostMethod post = new PostMethod(fullURL);
@@ -172,12 +165,19 @@ public class CDLDataCiteService {
     }
 
 
-    private String changePrefixDOIForTestEnv(String doi) {
-        // if test env
-        if (ConfigurationManager.getBooleanProperty("doi.service.connected", false)) {
+    private String normalizeDOI(String doi) {
+	if (doi.startsWith("doi:")) {
+	    doi = doi.substring(4);
+	}
+	
+        if (ConfigurationManager.getBooleanProperty("doi.service.testmode", false)) {
+	    log.debug("updating DOI prefix for testmode");
             doi = doi.substring(doi.indexOf('/') + 1);
-            doi = "doi:10.5072/" + doi;
+            doi = "10.5072/FK2/" + doi;
         }
+
+	doi = doi.toUpperCase();
+
         return doi;
     }
 
@@ -463,13 +463,17 @@ public class CDLDataCiteService {
 
 
     private String encodeAnvl(String target, Map<String, String> metadata) {
-        Iterator<Map.Entry<String, String>> i = metadata.entrySet().iterator();
+
         StringBuffer b = new StringBuffer();
 	b.append("_target: " + escape(target) + "\n");
-	while (i.hasNext()) {
-            Map.Entry<String, String> e = i.next();
-            b.append(escape(e.getKey()) + ": " + escape(e.getValue()) + "");
-        }
+
+	if(metadata.entrySet() != null) {
+	    Iterator<Map.Entry<String, String>> i = metadata.entrySet().iterator();
+	    while (i.hasNext()) {
+		Map.Entry<String, String> e = i.next();
+		b.append(escape(e.getKey()) + ": " + escape(e.getValue()) + "");
+	    }
+	}
 	return b.toString();
     }
 
