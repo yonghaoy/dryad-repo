@@ -37,8 +37,7 @@ public class CDLDataCiteService {
 
     private static final Logger log = Logger.getLogger(CDLDataCiteService.class);
 
-    private static final String BASEURL = "https://n2t.net/ezid";
-
+    private String baseUrl = "https://n2t.net/ezid";  
     private String myUsername;
     private String myPassword;
 
@@ -68,11 +67,24 @@ public class CDLDataCiteService {
     int notProcessItems = 0;
     int itemsWithErrors = 0;
 
+    private boolean initialized = false;
+    
     public CDLDataCiteService(final String aUsername, final String aPassword) {
         myUsername = aUsername;
         myPassword = aPassword;
     }
 
+    /**
+       Initialization is performed here, rather than in the constructor, because the
+       ConfigurationManager is not available when the constructor is called.
+    **/
+    private void init() {
+	if (!initialized) {
+	    baseUrl =  ConfigurationManager.getProperty("doi.service.url");   
+	}
+	initialized = true;
+    }
+    
     /**
      * @param aDOI A DOI in the form <code>10.5061/dryad.1731</code>
      * @param aURL A URL in the form
@@ -82,26 +94,28 @@ public class CDLDataCiteService {
      *                     the remote service
      */
     public String registerDOI(String aDOI, String aURL, Map<String, String> metadata) throws IOException {
-
+	init();
+	
         if (ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)) {
             if (aDOI.startsWith("doi")) {
                 aDOI = aDOI.substring(4);
             }
 
-            PutMethod put = new PutMethod(BASEURL + "/id/doi%3A" + aDOI);
+            PutMethod put = new PutMethod(baseUrl + "/id/doi%3A" + aDOI);
             return executeHttpMethod(aURL, metadata, put);
         }
         return "datacite.notConnected";
     }
 
     public String lookup(String aDOI) throws IOException {
-
+	init();
+	
         if (ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)) {
             if (aDOI.startsWith("doi")) {
                 aDOI = aDOI.substring(4);
             }
 
-            GetMethod get = new GetMethod(BASEURL + "/id/doi%3A" + aDOI);
+            GetMethod get = new GetMethod(baseUrl + "/id/doi%3A" + aDOI);
             HttpMethodParams params = new HttpMethodParams();
 
             get.setRequestHeader("Content-Type", "text/plain");
@@ -127,6 +141,8 @@ public class CDLDataCiteService {
      */
     public String update(String aDOI, String target, Map<String, String> metadata) throws IOException {
 	log.debug("updating metadata for DOI: " + aDOI + " with redirect URL " + target);
+	init();
+	
         if (!ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)) {
 	    return "datacite.notConnected";
 	}
@@ -136,7 +152,7 @@ public class CDLDataCiteService {
 	}
 	
 	aDOI = aDOI.toUpperCase();
-	String fullURL = BASEURL + "/id/doi%3A" + aDOI;
+	String fullURL = baseUrl + "/id/doi%3A" + aDOI;
 	log.debug("posting to " + fullURL);
 	PostMethod post = new PostMethod(fullURL);
 	
@@ -183,6 +199,7 @@ public class CDLDataCiteService {
 
 
     public void syncAll() {
+	init();
 
         registeredItems = 0;
         syncItems = 0;
