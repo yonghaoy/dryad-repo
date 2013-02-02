@@ -41,7 +41,7 @@ public class DataCiteChecker extends AbstractCurationTask{
         Item item = (Item)dso;
 
         // TODO TRY OUT Spring Configuraion
-        CDLDataCiteService dataCiteService = new CDLDataCiteService(null, null);
+        CDLDataCiteService dataCiteService = new CDLDataCiteService();
         String doi = DOIIdentifierProvider.getDoiValue(item);
 
         // For local TEST!

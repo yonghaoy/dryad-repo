@@ -38,8 +38,8 @@ public class CDLDataCiteService {
     private static final Logger log = Logger.getLogger(CDLDataCiteService.class);
 
     private String baseUrl = "https://n2t.net/ezid";  
-    private String myUsername;
-    private String myPassword;
+    private String myUsername = "";
+    private String myPassword = "";
 
     public static final String DC_CREATOR = "dc.creator";
     public static final String DC_TITLE = "dc.title";
@@ -69,9 +69,8 @@ public class CDLDataCiteService {
 
     private boolean initialized = false;
     
-    public CDLDataCiteService(final String aUsername, final String aPassword) {
-        myUsername = aUsername;
-        myPassword = aPassword;
+    public CDLDataCiteService() {
+	// don't do anything, because the ConfigurationManager may not be loaded yet
     }
 
     /**
@@ -81,8 +80,10 @@ public class CDLDataCiteService {
     private void init() {
 	if (!initialized) {
 	    baseUrl =  ConfigurationManager.getProperty("doi.service.url");   
+	    myUsername = ConfigurationManager.getProperty("doi.service.username");
+	    myPassword = ConfigurationManager.getProperty("doi.service.password");     
+	    initialized = true;
 	}
-	initialized = true;
     }
     
     /**
@@ -323,33 +324,30 @@ public class CDLDataCiteService {
      */
     public static void main(String[] args) throws IOException {
 	
-        String usage = "\n\nUsage: \n\tregister or update a specific Item: class username password doi target register|update\n" +
+        String usage = "\n\nUsage: \n\tregister or update a specific Item: class doi target register|update\n" +
 	    "\tlookup a specific item: class doi\n" +
-	    "\tsynchronize all items to dataCite --> class username password syncall\n\n";
+	    "\tsynchronize all items to dataCite --> class syncall\n\n";
         CDLDataCiteService service;
 
 	log.debug("========== Starting DOI command-line service ===========");
 
         // LOOKUP: args[0]=DOI
-        if (args.length == 1) {
-            service = new CDLDataCiteService(null, null);
+        // SYNCALL: args= syncall
+        if (args[0].equals("syncall")) {
+            service = new CDLDataCiteService();
+            service.syncAll();
+        }
+	else if (args.length == 1) {
+            service = new CDLDataCiteService();
             String doiID = args[0];
             System.out.println(service.lookup(doiID));
         }
-        // SYNCALL: args= USERNAME PASSWORD syncall
-        else if (args.length == 3 && args[2].equals("syncall")) {
-            String username = args[0];
-            String password = args[1];
-            service = new CDLDataCiteService(username, password);
-            service.syncAll();
-        }
-        // REGISTER || UPDATE: args= USERNAME PASSWORD DOI URL ACTION
-        else if (args.length == 5) {
-            String username = args[0];
-            String password = args[1];
-            String doiID = args[2];
-            String target = args[3];
-            String action = args[4];
+        
+        // REGISTER || UPDATE: args= DOI URL ACTION
+        else if (args.length == 3) {
+	    String doiID = args[0];
+            String target = args[1];
+            String action = args[2];
 
             org.dspace.core.Context context = null;
             try {
@@ -381,7 +379,7 @@ public class CDLDataCiteService {
                 metadata = createMetadataList((Item) dso);
             }
 
-            service = new CDLDataCiteService(username, password);
+            service = new CDLDataCiteService();
 
             if (action.equals("register")) {
 

@@ -39,7 +39,7 @@ public class DataCiteSynchronizer extends AbstractCurationTask{
 
         Item item = (Item)dso;
 
-        CDLDataCiteService dataCiteService = new CDLDataCiteService(ConfigurationManager.getProperty("doi.username"), ConfigurationManager.getProperty("doi.password"));
+        CDLDataCiteService dataCiteService = new CDLDataCiteService();
 
 
         // for Local TEST
