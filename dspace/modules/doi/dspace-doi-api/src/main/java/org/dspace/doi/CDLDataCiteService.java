@@ -97,10 +97,8 @@ public class CDLDataCiteService {
     public String registerDOI(String aDOI, String aURL, Map<String, String> metadata) throws IOException {
 	init();
 	
-        if (ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)) {
-            if (aDOI.startsWith("doi")) {
-                aDOI = aDOI.substring(4);
-            }
+        if (ConfigurationManager.getBooleanProperty("doi.service.connected", false)) {
+	    aDOI = normalizeDOI(aDOI);
 
             PutMethod put = new PutMethod(baseUrl + "/id/doi%3A" + aDOI);
             return executeHttpMethod(aURL, metadata, put);
@@ -110,11 +108,9 @@ public class CDLDataCiteService {
 
     public String lookup(String aDOI) throws IOException {
 	init();
-	
-        if (ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)) {
-            if (aDOI.startsWith("doi")) {
-                aDOI = aDOI.substring(4);
-            }
+
+        if (ConfigurationManager.getBooleanProperty("doi.service.connected", false)) {
+	    aDOI = normalizeDOI(aDOI);
 
             GetMethod get = new GetMethod(baseUrl + "/id/doi%3A" + aDOI);
             HttpMethodParams params = new HttpMethodParams();
@@ -144,15 +140,12 @@ public class CDLDataCiteService {
 	log.debug("updating metadata for DOI: " + aDOI + " with redirect URL " + target);
 	init();
 	
-        if (!ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)) {
+        if (!ConfigurationManager.getBooleanProperty("doi.service.connected", false)) {
 	    return "datacite.notConnected";
 	}
 
-	if (aDOI.startsWith("doi")) {
-	    aDOI = aDOI.substring(4);
-	}
-	
-	aDOI = aDOI.toUpperCase();
+	aDOI = normalizeDOI(aDOI);
+
 	String fullURL = baseUrl + "/id/doi%3A" + aDOI;
 	log.debug("posting to " + fullURL);
 	PostMethod post = new PostMethod(fullURL);
@@ -189,19 +182,25 @@ public class CDLDataCiteService {
     }
 
 
-    private String changePrefixDOIForTestEnv(String doi) {
-        // if test env
-        if (ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)) {
-            doi = doi.substring(doi.indexOf('/') + 1);
-            doi = "doi:10.5072/" + doi;
-        }
-        return doi;
+    /**
+       Ensure DOI is in a consistent form. The shortest form of the DOI is used, with no "doi" prefix.
+       If testing mode is in effect, the DOI uses the test shoulder, so its registration will
+       disappear after a few days.
+    **/
+    private String normalizeDOI(String doi) {
+	if (doi.startsWith("doi:")) {
+	    doi = doi.substring(4);
+	}
+	if (ConfigurationManager.getBooleanProperty("doi.service.testmode", false)) {
+	    log.debug("updating DOI prefix for testmode");
+	    doi = doi.substring(doi.indexOf('/') + 1);
+	    doi = "10.5072/FK2/" + doi;
+	}
+	doi = doi.toUpperCase();
+	return doi;
     }
 
-
     public void syncAll() {
-	init();
-
         registeredItems = 0;
         syncItems = 0;
         notProcessItems = 0;

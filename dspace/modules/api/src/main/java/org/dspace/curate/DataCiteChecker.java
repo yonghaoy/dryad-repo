@@ -31,7 +31,7 @@ public class DataCiteChecker extends AbstractCurationTask{
     @Override
     public int perform(DSpaceObject dso) throws IOException {
 
-        if(!ConfigurationManager.getBooleanProperty("doi.datacite.connected", false)){
+        if(!ConfigurationManager.getBooleanProperty("doi.service.connected", false)){
             this.setResult("Functionality not supported in test environment.");
             return Curator.CURATE_FAIL;
         }

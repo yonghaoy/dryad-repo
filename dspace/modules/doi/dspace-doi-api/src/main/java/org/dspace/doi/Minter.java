@@ -304,7 +304,7 @@ public class Minter implements org.springframework.beans.factory.InitializingBea
 	myHdlPrefix = configurationService.getProperty("handle.prefix");
 	myDoiService = new CDLDataCiteService();
 	myHostname = configurationService.getProperty("dryad.url");
-	myDataCiteConnectionIsLive = configurationService.getPropertyAsType("doi.datacite.connected",boolean.class);
+	myDataCiteConnectionIsLive = configurationService.getPropertyAsType("doi.service.connected",boolean.class);
 	myDataPkgColl = configurationService.getProperty("stats.datapkgs.coll");
 	myDataFileColl = configurationService.getProperty("stats.datafiles.coll");
 	
