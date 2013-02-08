@@ -16,24 +16,6 @@
       <version>1.7.3-SNAPSHOT</version>
    </parent>
 
-    <repositories>
-        <repository>
-            <id>atmire.com-releases</id>
-            <name>atmire.com-releases</name>
-            <url>https://atmire.com/artifactory/atmire.com-releases</url>
-            <releases>
-                <enabled>true</enabled>
-                <checksumPolicy>fail</checksumPolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-                <checksumPolicy>fail</checksumPolicy>
-            </snapshots>
-        </repository>
-    </repositories>
-
-
    <scm>
       <connection>scm:svn:https://scm.dspace.org/svn/repo/dspace/tags/dspace-1.7.2</connection>
       <developerConnection>scm:svn:https://scm.dspace.org/svn/repo/dspace/tags/dspace-1.7.2/dspace/modules/xmlui</developerConnection>
@@ -140,6 +122,27 @@
             </dependency>
          </dependencies>
       </profile>
+
+       <profile>
+           <id>env-prod</id>
+           <repositories>
+               <repository>
+                   <id>atmire.com-releases</id>
+                   <name>atmire.com-releases</name>
+                   <url>https://atmire.com/artifactory/atmire.com-releases</url>
+                   <releases>
+                       <enabled>true</enabled>
+                       <checksumPolicy>fail</checksumPolicy>
+                   </releases>
+                   <snapshots>
+                       <enabled>true</enabled>
+                       <updatePolicy>never</updatePolicy>
+                       <checksumPolicy>fail</checksumPolicy>
+                   </snapshots>
+               </repository>
+           </repositories>
+       </profile>
+
    </profiles>
 
    <dependencies>
