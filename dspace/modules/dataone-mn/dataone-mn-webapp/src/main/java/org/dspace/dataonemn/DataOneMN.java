@@ -528,6 +528,7 @@ public class DataOneMN extends HttpServlet implements Constants {
  	    // perform corrections for timestamped IDs
 	    // If we receive a timestamped ID, we will produce metadata records that contain timestamped IDs.
 	    // Timestamps are always at the end of the identifier
+
 	    if (id.contains("ver=")) {
 		int timeIndex = id.indexOf("ver=") - 1;
 		idTimestamp = id.substring(timeIndex);

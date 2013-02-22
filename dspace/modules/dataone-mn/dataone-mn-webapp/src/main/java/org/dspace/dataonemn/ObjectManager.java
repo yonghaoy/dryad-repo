@@ -247,6 +247,7 @@ public class ObjectManager implements Constants {
             String doi = tr.getStringColumn("doi");
 	    String idTimestamp = "";
 	    String idRemTimestamp = "";
+
             Date dateAvailable = tr.getDateColumn("date_available");
 	    Date lastModifiedDate = tr.getDateColumn("last_modified");
             String lastModified = dateFormatter.format(lastModifiedDate);
@@ -853,6 +854,7 @@ public class ObjectManager implements Constants {
 		StringBuffer hexString = new StringBuffer();
 		byte[] digest;
 		if(aID.contains("?format=d1rem")) {
+		if(aID.endsWith("/d1rem")) {
                     getResourceMap(aID, idTimestamp, outputStream);
                 } else {
                     getMetadataObject(aID, idTimestamp, outputStream);
@@ -934,7 +936,6 @@ public class ObjectManager implements Constants {
      **/
     public void getResourceMap(String aID, String idTimestamp, OutputStream aOutputStream)
 	throws IOException, SQLException, NotFoundException {
-	
 	log.debug("Retrieving resource map for " + aID + " with timestamp " + idTimestamp);
 	
 	try {
