@@ -554,6 +554,7 @@ public abstract class AbstractFiltersTransformer extends AbstractDSpaceTransform
         }
     }
 
+
     /**
      * Returns the parameters used so it can be used in a url
      * @param request the cocoon request
@@ -572,6 +573,33 @@ public abstract class AbstractFiltersTransformer extends AbstractDSpaceTransform
                         result.append(key).append("=").append(paramValue);
                         result.append("&");
                     }
+                }
+            }
+        }
+        return result.toString();
+    }
+
+    /**
+     * Returns the parameters used so it can be used in a url
+
+     * @return the parameters used on this page
+     */
+    protected String retrieveParameters(Map parameters) {
+
+        //request.getParameters()
+        StringBuffer result = new StringBuffer();
+        Iterator keys = parameters.keySet().iterator();
+        //request.getParameterNames();
+        if(keys != null){
+            while (keys.hasNext()){
+                String key = (String) keys.next();
+                //Ignore the page and submit button keys
+                if(key != null && !"page".equals(key) && !key.startsWith("submit")){
+                    String vals = (String)parameters.get(key);
+
+                        result.append(key).append("=").append(vals);
+                        result.append("&");
+
                 }
             }
         }

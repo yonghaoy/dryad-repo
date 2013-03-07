@@ -23,6 +23,8 @@
                 xmlns:mods="http://www.loc.gov/mods/v3"
                 xmlns:dc="http://purl.org/dc/elements/1.1/"
                 xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:encoder="xalan://java.net.URLEncoder" xmlns:decoder="xalan://java.net.URLDecoder"
+                xmlns:xalan="http://xml.apache.org/xalan" xmlns:datetime="http://exslt.org/dates-and-times"
                 exclude-result-prefixes="i18n dri mets xlink xsl dim xhtml mods dc">
 
     <xsl:import href="../dri2xhtml-alt/dri2xhtml.xsl"/>
@@ -46,118 +48,118 @@
 
 
     <xsl:template match="dri:body[//dri:meta/dri:pageMeta/dri:metadata[@element='request' and @qualifier='URI'] = '' ]">
-            <!-- add special style just for the homepage -->
-	    <style type="text/css">
-	      /* special style for Dryad homepage only */
-	      #ds-body {
-	      width: 100%;
-	      }
-	      
-	      .labelcell {
-	      font-weight: bold;
-	      }
-	      
-	      .datacell {
-	      text-align: right;
-	      }
-	      
-	      .ds-div-head a {
-	      font-size: 0.7em;
-	      font-weight: normal;
-	      position: relative;
-	      top: -0.1em;
-	      }
-	      
-	      .ds-artifact-list {
-	      /* font-size: 100%; */
-	      line-height: 1.4em;
-	      }
-	      
-	      .ds-artifact-item {
-	      padding-top: 10px;
-	      }
-	      
-	      .artifact-title {
-	      font-size: 100%;
-	      }
-	      
-	      .ds-artifact-list .artifact-info {
-	      display: none;
-	      }
-	      
-	      /* implied 3 columns @300px width, 25px gutters */
-	      .home-col-1 {
-	      float: left;
-	      width: 625px;
-	      padding: 0;
-	      /* margin-right: 25px;*/
-	      }
-	      
-	      .home-col-2 {
-	      float: right;
-	      width: 300px;
-	      margin-left: 0;
-	      margin-right: 0;
-	      }
-	      
-	      .home-top-row {
-	      height: 220px;
-	      }
-	      
-	      .home-bottom-row {
-	      height: 420px;
-	      }
+        <!-- add special style just for the homepage -->
+        <style type="text/css">
+            /* special style for Dryad homepage only */
+            #ds-body {
+                width: 100%;
+            }
 
-	      #dryad-home-carousel {
-	      font-size: 23px;
-	      font-weight: bold;
-	      background-color: rgb(255, 255, 255);
-	      border: 1px solid rgb(51, 51, 51);
-	      height: 216px;
-	      padding: 0px;
-	      overflow: visible;
-	      }
-	      
-	      #dryad-home-carousel div.bxslider {
-	      overflow: visible;
-	      }
-	      
-	      #dryad-home-carousel div.bxslider div {
-	      height: 190px;
-	      padding: 0;
-	      margin: 0;
-	      }
-	      
-	      #dryad-home-carousel div.bxslider div p {
-	      width: 550px;
-	      margin: auto;
-	      margin-top: 1em;
-	      }
-	      
-	      #dryad-home-carousel .bx-pager {
-	      bottom: -32px;
-	      left: 8px;
-	      }
+            .labelcell {
+                font-weight: bold;
+            }
 
-	      #dryad-home-carousel .bx-controls-auto-item {
-	      padding-top: 10px;
-	      }
+            .datacell {
+                text-align: right;
+            }
 
-	      .blog-box ul {
-	      list-style: none;
-	      margin-left: 0;
-	      }
-	      
-	      .blog-box li {
-	      margin: 0.5em 0 1.2em;
-	      }
+            .ds-div-head a {
+                font-size: 0.7em;
+                font-weight: normal;
+                position: relative;
+                top: -0.1em;
+            }
 
-	      #connect-illustrated-prose img {
-	      width: auto;
-	      margin: 4px;
-	      }
-	    </style>
-	    
+            .ds-artifact-list {
+                /* font-size: 100%; */
+                line-height: 1.4em;
+            }
+
+            .ds-artifact-item {
+                padding-top: 10px;
+            }
+
+            .artifact-title {
+                font-size: 100%;
+            }
+
+            .ds-artifact-list .artifact-info {
+                display: none;
+            }
+
+            /* implied 3 columns @300px width, 25px gutters */
+            .home-col-1 {
+                float: left;
+                width: 625px;
+                padding: 0;
+                /* margin-right: 25px;*/
+            }
+
+            .home-col-2 {
+                float: right;
+                width: 300px;
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .home-top-row {
+                height: 220px;
+            }
+
+            .home-bottom-row {
+                height: 420px;
+            }
+
+            #dryad-home-carousel {
+                font-size: 23px;
+                font-weight: bold;
+                background-color: rgb(255, 255, 255);
+                border: 1px solid rgb(51, 51, 51);
+                height: 216px;
+                padding: 0px;
+                overflow: visible;
+            }
+
+            #dryad-home-carousel div.bxslider {
+                overflow: visible;
+            }
+
+            #dryad-home-carousel div.bxslider div {
+                height: 190px;
+                padding: 0;
+                margin: 0;
+            }
+
+            #dryad-home-carousel div.bxslider div p {
+                width: 550px;
+                margin: auto;
+                margin-top: 1em;
+            }
+
+            #dryad-home-carousel .bx-pager {
+                bottom: -32px;
+                left: 8px;
+            }
+
+            #dryad-home-carousel .bx-controls-auto-item {
+                padding-top: 10px;
+            }
+
+            .blog-box ul {
+                list-style: none;
+                margin-left: 0;
+            }
+
+            .blog-box li {
+                margin: 0.5em 0 1.2em;
+            }
+
+            #connect-illustrated-prose img {
+                width: auto;
+                margin: 4px;
+            }
+        </style>
+
 
         <div id="ds-body">
 
@@ -171,28 +173,28 @@
                                 <span style="color: #595;">DataDryad.org</span>
                                 is a
                                 <span style="color: #363;">curated general-purpose repository</span>
-                                that makes the 
+                                that makes the
                                 <span style="color: #242;">data underlying scientific publications</span>
-                                discoverable, freely reusable, and citable. Dryad has 
-				<span style="color: #595;">integrated data submission</span> 
-				for a growing list of journals; submission of data from other publications is also welcome.
+                                discoverable, freely reusable, and citable. Dryad has
+                                <span style="color: #595;">integrated data submission</span>
+                                for a growing list of journals; submission of data from other publications is also welcome.
                             </p>
                         </div>
                         <div>
-			  <a href="/pages/depositing">
-			    <img src="themes/Mirage/images/bookmarkSubmissionProcess.png"/>
-			    <p>Placeholder text --- to be replaced by bookmark images </p>
-			  </a>
+                            <a href="/pages/depositing">
+                                <img src="themes/Mirage/images/bookmarkSubmissionProcess.png"/>
+                                <p>Placeholder text --- to be replaced by bookmark images </p>
+                            </a>
                         </div>
                         <div>
-			  <a href="http://blog.datadryad.org/2013/02/11/dryad-membership-meeting-data-publishing-symposium-2/">
-			    <img src="themes/Mirage/images/2013membershipMeeting.jpg"/>
-			  </a>
+                            <a href="http://blog.datadryad.org/2013/02/11/dryad-membership-meeting-data-publishing-symposium-2/">
+                                <img src="themes/Mirage/images/2013membershipMeeting.jpg"/>
+                            </a>
                         </div>
                         <div>
-			  <a href="http://datadryad.org/resource/doi:10.5061/dryad.gs45f">
-			    <img src="themes/Mirage/images/dryad.gs45f.jpg"/>
-			  </a>
+                            <a href="http://datadryad.org/resource/doi:10.5061/dryad.gs45f">
+                                <img src="themes/Mirage/images/dryad.gs45f.jpg"/>
+                            </a>
                         </div>
 
                     </div>
@@ -973,5 +975,86 @@
     </xsl:template>
     <!-- END First submission form: added and rewrote some templates to manage the form using jquery, to lead the user through the submission -->
 
+
+    <!-- Here we construct Dryad's search results tabs; externally harvested
+collections are each given a tab.  Collection values of these collections
+(l3 for instance... this is just a code assigned by DSpace) are hard-coded
+so we need to make sure a collection has the same code across different
+Dryad installs (dev, demo, staging, production, etc.) -->
+    <xsl:template match="dri:referenceSet[@type = 'summaryList']"
+                  priority="2">
+        <xsl:apply-templates select="dri:head" />
+        <!-- Here we decide whether we have a hierarchical list or a flat one -->
+        <xsl:choose>
+            <xsl:when
+                    test="descendant-or-self::dri:referenceSet/@rend='hierarchy' or ancestor::dri:referenceSet/@rend='hierarchy'">
+                <ul>
+                    <xsl:apply-templates select="*[not(name()='head')]"
+                                         mode="summaryList" />
+                </ul>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:if test="$meta[@element='request'][@qualifier='URI'][.='discover']">
+
+
+                    <!--  The tabs display a selected tab based on the location
+           parameter that is being used (see variable defined above) -->
+                    <div id="searchTabs">
+                        <ul>
+                            <xsl:call-template name="buildTabs"/>
+
+
+                        </ul>
+                    </div>
+                </xsl:if>
+                <ul class="ds-artifact-list">
+                    <xsl:choose>
+                        <xsl:when test="$meta[@element='request'][@qualifier='URI'][.='submissions']">
+                            <xsl:apply-templates select="*[not(name()='head')]"
+                                                 mode="summaryNonArchivedList" />
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:apply-templates select="*[not(name()='head')]"
+                                                 mode="summaryList" />
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </ul>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    <xsl:template name="buildTabs">
+
+        <xsl:for-each select="/dri:document/dri:body/dri:div/dri:div/dri:list[@n='tabs']/dri:item">
+
+            <xsl:element name="li">
+
+                <xsl:if test="dri:field[@n='selected']">
+                    <xsl:attribute name="id">selected</xsl:attribute>
+
+                </xsl:if>
+                <xsl:element name="a">
+                    <xsl:attribute name="href">
+                        <xsl:value-of select="dri:xref/@target"/>
+                    </xsl:attribute>
+
+
+                    <xsl:value-of select="dri:xref/text()"/>
+
+                </xsl:element>
+            </xsl:element>
+
+        </xsl:for-each>
+
+    </xsl:template>
+
+
+
+
+    <!--
+<xsl:template match="/dri:document/dri:body/dri:div/dri:div[@id='aspect.discovery.SimpleSearch.div.search-results']/dri:list">
+
+</xsl:template>
+    -->
+    <xsl:template match="/dri:document/dri:body/dri:div/dri:div/dri:list[@n='tabs']"/>
 
 </xsl:stylesheet>

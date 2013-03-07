@@ -14,8 +14,10 @@ import org.apache.cocoon.util.HashUtil;
 import org.apache.excalibur.source.SourceValidity;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 import org.dspace.app.xmlui.utils.ContextUtil;
 import org.dspace.app.xmlui.utils.DSpaceValidity;
 import org.dspace.app.xmlui.utils.HandleUtil;
@@ -152,6 +154,8 @@ public abstract class AbstractSearch extends AbstractFiltersTransformer {
     protected void buildSearchResultsDivision(Division search)
             throws IOException, SQLException, WingException, SearchServiceException, AuthorizeException {
 
+        Request request = ObjectModelHelper.getRequest(objectModel);
+
         try {
             if (queryResults == null || queryResults.getResults() == null) {
 
@@ -187,6 +191,88 @@ public abstract class AbstractSearch extends AbstractFiltersTransformer {
             results.setHead(T_head1_collection.parameterize(collectionName));
         } else {
             results.setHead(T_head1_none);
+        }
+
+
+        FacetField facet = queryResults.getFacetField("location.coll");
+        if(facet != null){
+            java.util.List<FacetField.Count> facetVals = facet.getValues();
+            if(facetVals != null)
+            {
+                org.dspace.app.xmlui.wing.element.List list = results.addList("tabs");
+
+                for (FacetField.Count count : facetVals) {
+                    if(!count.getName().equals("3")){
+                    String filterQuery = count.getAsFilterQuery();
+                    String paramsQuery=request.getQueryString();
+//                   Map map = new HashMap();
+//                   Map requestMap = request.getParameters();
+//                   log.info("" + requestMap);
+//
+//                    String uri = request.getRequestURI();
+//                    String queryString = request.getQueryString();
+//
+//                    log.info("" + uri);
+//                    log.info("" + queryString);
+//
+//                    for(Object key : request.getParameters().keySet())
+//                    {
+//                        String keyString = (String)key;
+//
+//                        if(!request.getParameters().get(key).toString().contains("location.coll:"))
+//                        {
+//                           map.put(keyString,request.getParameters().get(key));
+//                        }
+//                    }
+//
+//                    String fq = "";
+//                    if(request.getParameters().get("fq")!=null)
+//                        fq =request.getParameters().get("fq").toString();
+//
+//                    map.put("fq",fq + "&fq=location.coll:"+count.getName());
+//
+//                    String paramsQuery = retrieveParameters(map);
+                        Collection coll = Collection.find(context,Integer.parseInt(count.getName()));
+                        org.dspace.app.xmlui.wing.element.Item collectionLink = list.addItem();
+                    if(paramsQuery.contains("fq=location.coll"))  {
+                    if(paramsQuery.contains("fq=location.coll:"+count.getName())||paramsQuery.contains("fq=location.coll%3A"+count.getName()))
+
+                    {
+                        collectionLink.addHidden("selected");
+                    }
+                    }
+                        else{
+                        if(count.getName().equals("2"))
+                        {
+                            collectionLink.addHidden("selected");
+                        }
+                    }
+
+
+
+
+                    if(request.getQueryString().contains("&fq=location.coll:")){
+                        paramsQuery = parameterReplace("&fq=location.coll:",paramsQuery,count.getName());
+                    }
+                    else if(request.getQueryString().contains("&fq=location.coll%3A")){
+                        paramsQuery = parameterReplace("&fq=location.coll%3A",paramsQuery,count.getName());
+                    }
+                    else{
+                        paramsQuery=paramsQuery+"&fq=location.coll:" + count.getName();
+                    }
+
+                        if(request.getQueryString().contains("&page=")){
+                            paramsQuery = parameterReplace("&page=",paramsQuery,"1");
+                        }
+
+
+                        collectionLink.addXref(contextPath + "/" + getDiscoverUrl() + "?" +paramsQuery,coll.getName() + " (" + count.getCount() + ")" );
+
+                    //values.add(new FilterDisplayValue(count.getName(), count.getCount(), count.getAsFilterQuery()));
+                }
+                }
+            }
+
         }
 
         if (queryResults != null &&
@@ -362,19 +448,44 @@ public abstract class AbstractSearch extends AbstractFiltersTransformer {
         int page = getParameterPage();
 
         List<String> filterQueries = new ArrayList<String>();
-
+        /*
         if (scope instanceof Community) {
-            filterQueries.add("location:m" + scope.getID());
+            filterQueries.add("{!tag=dt}location:m" + scope.getID());
 
         } else if (scope instanceof Collection) {
-            filterQueries.add("location:l" + scope.getID());
+            filterQueries.add("{!tag=dt}location:l" + scope.getID());
         }
-        String location = ObjectModelHelper.getRequest(objectModel).getParameter("location");
-        if(location != null){
-            filterQueries.add("location:" + location);
+         */
+        String[] location = ObjectModelHelper.getRequest(objectModel).getParameterValues("fq");
+
+        boolean found = false;
+        if(location!=null){
+        for(String loc : location)
+        {
+            if(loc.startsWith("location.coll:"))
+            {
+                found = true;
+               // filterQueries.add("{!tag=dt}location.coll:"+loc.substring("location.coll:".length()));
+            }
+        }
+        }
+        if(!found)
+        {
+            filterQueries.add("{!tag=dt}location.coll:2");
         }
 
+
+
+
         String[] fqs = getSolrFilterQueries();
+        for(int i=0;i<fqs.length;i++){
+            if(fqs[i].contains("location.coll:")){
+
+                String tmp= fqs[i].replaceAll("location.coll","{!tag=dt}location.coll");
+                fqs[i] = tmp;
+            }
+
+        }
 
         if (fqs != null)
         {
@@ -452,6 +563,9 @@ public abstract class AbstractSearch extends AbstractFiltersTransformer {
             queryArgs.setStart(0);
         }
 
+
+            queryArgs.addFacetField("{!ex=dt}location.coll");
+            queryArgs.add("f.location.coll.facet.mincount","0");
 
 
 
@@ -756,5 +870,24 @@ public abstract class AbstractSearch extends AbstractFiltersTransformer {
         log.info(LogManager.getHeader(context, "search", logInfo + "query=\""
                 + queryArgs.getQuery() + "\",results=(" + countCommunities + ","
                 + countCollections + "," + countItems + ")"));
+    }
+
+    public static String parameterReplace(String prefix,String s,String newNumber){
+        String query=s;
+        String part = s.substring(s.indexOf(prefix) + prefix.length());
+        String collectionNumber="";
+        boolean isNumber=true;
+        while(isNumber){
+            try{
+                String number = part.substring(0, 1);
+                Integer.parseInt(number);
+                collectionNumber+=number;
+                part=part.substring(1);
+            }catch (Exception nfe){
+                isNumber=false;
+            }
+        }
+        query = s.replace(prefix+collectionNumber, prefix+newNumber);
+        return query;
     }
 }
