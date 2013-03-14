@@ -83,6 +83,8 @@ public class EmailParserForBmcEvoBio extends EmailParser {
 	fieldToXMLTagTable.put("Contact Author Country","Country");
 	fieldToXMLTagTable.put("Contact Author ZIP/Postal Code","Zip");
 	fieldToXMLTagTable.put("Keywords","Classification");
+	fieldToXMLTagTable.put("Primary subject","Classification");
+	fieldToXMLTagTable.put("Secondary subject","Classification");
 	fieldToXMLTagTable.put("Abstract","Abstract");
 	fieldToXMLTagTable.put("Article Status","Article_Status");
 	
