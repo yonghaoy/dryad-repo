@@ -185,8 +185,9 @@ public class SiteOverview extends AbstractDSpaceTransformer implements
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
-            GetMethod get = new GetMethod(solr.replace("search","statistics") + DOWN_SEARCH);
-
+            //GetMethod get = new GetMethod(solr.replace("search","statistics") + DOWN_SEARCH);
+            solr=ConfigurationManager.getProperty("solr.log.server");
+            GetMethod get = new GetMethod(solr + DOWN_SEARCH);
 
             switch (new HttpClient().executeMethod(get)) {
                 case 200:
@@ -222,24 +223,24 @@ public class SiteOverview extends AbstractDSpaceTransformer implements
         String value = Long.toString(dataPackageCount) ;
 
         Row row = infoTable.addRow();
-        row.addCell("data").addContent("Total data packages");
-        row.addCell("data").addContent(Long.toString(dataPackageCount));
+        row.addCell("package","data","labelcell").addContent("Total data packages");
+        row.addCell("npackage","data","datacell").addContent(Long.toString(dataPackageCount));
 
         row = infoTable.addRow();
-        row.addCell("data").addContent("Total data files");
-        row.addCell("data").addContent(Long.toString(dataFileCount));
+        row.addCell("files","data","labelcell").addContent("Total data files");
+        row.addCell("nfiles","data","datacell").addContent(Long.toString(dataFileCount));
 
         row = infoTable.addRow();
-        row.addCell("data").addContent("Journals represented");
-        row.addCell("data").addContent(journalCount);
+        row.addCell("journals","data","labelcell").addContent("Journals represented");
+        row.addCell("njournals","data","datacell").addContent(journalCount);
 
         row = infoTable.addRow();
-        row.addCell("data").addContent("Total unique authors");
-        row.addCell("data").addContent(uniqAuthors);
+        row.addCell("authors","data","labelcell").addContent("Total unique authors");
+        row.addCell("nauthors","data","datacell").addContent(uniqAuthors);
 
         row = infoTable.addRow();
-        row.addCell("data").addContent("Total file downloads");
-        row.addCell("data").addContent(totalFileDownload);
+        row.addCell("downloads","data","labelcell").addContent("Total file downloads");
+        row.addCell("ndownloads","data","datacell").addContent(totalFileDownload);
 
     }
 
