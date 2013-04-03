@@ -458,7 +458,7 @@ public class SearchFilterTransformer extends AbstractDSpaceTransformer implement
                             renderFacetField(browseParams, dso, facetField, singleTable, filterQueries, value);
                         }
                     }
-                    String url = ConfigurationManager.getProperty("dspace.url")+"/search-filter?query=&field="+field;
+                    String url = ConfigurationManager.getProperty("dspace.url")+"/search-filter?query=&field="+field+"&fq=location:l2";
                     results.addList("link-to-button").addItemXref(url,"View More");
 
                 }else{
