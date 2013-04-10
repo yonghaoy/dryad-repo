@@ -1055,4 +1055,32 @@ parameter that is being used (see variable defined above) -->
             <xsl:apply-templates />
         </input>
     </xsl:template>
+
+    <!--add attribute placeholder and title for aspect_submission_StepTransformer_field_article_doi-->
+    <xsl:template match="//dri:field[@id='aspect.submission.StepTransformer.field.article_doi']" mode="normalField">
+        <input>
+            <xsl:call-template name="fieldAttributes"/>
+            <xsl:attribute name="placeholder">
+                <xsl:text>e.g., doi:10.1016/j.ympev.2012.02.008</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="title">
+                <xsl:text>e.g., doi:10.1016/j.ympev.2012.02.008</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="value">
+                <xsl:choose>
+                    <xsl:when test="./dri:value[@type='raw']">
+                        <xsl:value-of select="./dri:value[@type='raw']"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="./dri:value[@type='default']"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:attribute>
+            <xsl:if test="dri:value/i18n:text">
+                <xsl:attribute name="i18n:attr">value</xsl:attribute>
+            </xsl:if>
+            <xsl:apply-templates />
+        </input>
+    </xsl:template>
+
 </xsl:stylesheet>
