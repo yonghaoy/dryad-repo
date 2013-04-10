@@ -349,8 +349,8 @@
                     <div id="browse-data-buttons" class="tab-buttons">
                         <a href="#recently-published-data"><span>Recently published</span></a>
                         <a href="#most-viewed-data"><span>Most viewed</span></a>
-                        <a href="#by-author"><span>By Author</span></a>
-                        <a href="#by-journal"><span>By Journal</span></a>
+                        <a href="/search-filter?field=dc.contributor.author_filter&fq=location:l2"><span>By Author</span></a>
+                        <a href="/search-filter?field=prism.publicationName_filter&fq=location:l2"><span>By Journal</span></a>
                     </div>
                     <div id="recently-published-data" class="browse-data-panel">
                         <xsl:for-each select="dri:div[@n='site-home']">
