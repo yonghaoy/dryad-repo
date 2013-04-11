@@ -1826,7 +1826,8 @@ table.package-file-description td {
     text-align: left;
 }
 .license-badges {
-    padding-top: 10px;
+    float: right;
+    padding-top: 2px;
 }
 .article-abstract {
     background-color: #eee;
