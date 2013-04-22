@@ -85,7 +85,20 @@ jQuery(document).ready(function() {
             return false;
         });
         // CLick the first (default) tab in each set
-        jQuery('.tab-buttons a:first-child').click();
+        if(document.URL.indexOf("dc.contributor.author_filter")>=0||jQuery(".choose_browse_by").html()=="dc.contributor.author_filter")
+        {
+            jQuery('#by_author').click();
+
+        }
+        else if(document.URL.indexOf("prism.publicationName_filter")>=0||jQuery(".choose_browse_by").html()=="prism.publicationName_filter")
+        {
+            jQuery('#by_journal').click();
+        }
+        else
+        {
+            jQuery('.tab-buttons a:first-child').click();
+        }
+
     }
 
 });
