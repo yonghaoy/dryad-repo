@@ -2241,3 +2241,6 @@ a.feedbackform-user-voice-link {
 .choose_browse_by{
     display: none;
 }
+#aspect_discovery_MostDownloadedBitstream_table_most-downloaded th h2{
+    font-size: 1em;
+}
