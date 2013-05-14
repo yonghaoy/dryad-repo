@@ -341,9 +341,11 @@
                 <h1 class="ds-div-head">Browse for data</h1>
                 <div id="browse-data-buttons" class="tab-buttons">
                     <a href="#recently-published-data"><span>Recently published</span></a>
+
                     <a href="#most-viewed-data"><span>Popular</span></a>
                     <a id="by_author" href="#by-author"><span>By Author</span></a>
                     <a id="by_journal" href="#by-journal"><span>By Journal</span></a>
+
                 </div>
                 <div id="aspect_discovery_RecentlyAdded_div_Home" class="ds-static-div primary" style="height: 649px; overflow: auto;">
                     <div id="recently-published-data" class="browse-data-panel">
@@ -356,6 +358,7 @@
                         <xsl:apply-templates select="//dri:document/dri:body/dri:div[@id='aspect.discovery.MostDownloadedBitstream.div.home']"/>
 
                     </div>
+
                     <div id="by-author" class="browse-data-panel">
                         <xsl:apply-templates select="/dri:document/dri:body/dri:div[@id='aspect.discovery.SearchFilterTransformer.div.browse-by-dc.contributor.author_filter']"/>
                         <xsl:apply-templates select="/dri:document/dri:body/dri:div[@id='aspect.discovery.SearchFilterTransformer.div.browse-by-dc.contributor.author_filter-results']"/>
@@ -366,6 +369,7 @@
                         <xsl:apply-templates select="/dri:document/dri:body/dri:div[@id='aspect.discovery.SearchFilterTransformer.div.browse-by-prism.publicationName_filter-results']"/>
 
                     </div>
+
                 </div>
             </div>
 
@@ -1095,35 +1099,4 @@ parameter that is being used (see variable defined above) -->
             <xsl:apply-templates />
         </input>
     </xsl:template>
-
-    <!-- Override metadata field rendering to hide manuscript number -->
-    <xsl:template match="dim:field" mode="itemDetailView-DIM">
-        <xsl:if test="not(./@qualifier = 'manuscriptNumber')">
-            <tr>
-                <xsl:attribute name="class">
-                    <xsl:text>ds-table-row </xsl:text>
-                    <xsl:if test="(position() div 2 mod 2 = 0)">even </xsl:if>
-                    <xsl:if test="(position() div 2 mod 2 = 1)">odd </xsl:if>
-                </xsl:attribute>
-                <td>
-                    <xsl:value-of select="./@mdschema"/>
-                    <xsl:text>.</xsl:text>
-                    <xsl:value-of select="./@element"/>
-                    <xsl:if test="./@qualifier">
-                        <xsl:text>.</xsl:text>
-                        <xsl:value-of select="./@qualifier"/>
-                    </xsl:if>
-                </td>
-            <td>
-              <xsl:copy-of select="./node()"/>
-              <xsl:if test="./@authority and ./@confidence">
-                <xsl:call-template name="authorityConfidenceIcon">
-                  <xsl:with-param name="confidence" select="./@confidence"/>
-                </xsl:call-template>
-              </xsl:if>
-            </td>
-                <td><xsl:value-of select="./@language"/></td>
-            </tr>
-        </xsl:if>
-    </xsl:template>    
 </xsl:stylesheet>
