@@ -1220,6 +1220,7 @@
 		required</message>
 	<message key="xmlui.administrative.eperson.AddEPersonForm.error_lname">Last name is
 		required</message>
+    <message key="xmlui.administrative.eperson.AddEPersonForm.error_phone">Phone is required</message>
 	<message key="xmlui.administrative.eperson.AddEPersonForm.req_certs">Require Certificate</message>
 	<message key="xmlui.administrative.eperson.AddEPersonForm.can_log_in">Can Log In</message>
 	<message key="xmlui.administrative.eperson.AddEPersonForm.submit_create">Create E-Person</message>
@@ -1239,6 +1240,7 @@
 		required</message>
 	<message key="xmlui.administrative.eperson.EditEPersonForm.error_lname">Last name is
 		required</message>
+    <message key="xmlui.administrative.eperson.EditEPersonForm.error_phone">Phone is required</message>
 	<message key="xmlui.administrative.eperson.EditEPersonForm.req_certs">Require
 		Certificate</message>
 	<message key="xmlui.administrative.eperson.EditEPersonForm.can_log_in">Can Log In</message>

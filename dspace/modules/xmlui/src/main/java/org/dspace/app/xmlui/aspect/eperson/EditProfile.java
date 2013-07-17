@@ -322,6 +322,7 @@ public class EditProfile extends AbstractDSpaceTransformer
        // Phone
        Text phone = identity.addItem().addText("phone");
        phone.setLabel(T_telephone);
+       phone.setRequired();
        phone.setValue(defaultPhone);
        if (errors.contains("phone"))
        {
