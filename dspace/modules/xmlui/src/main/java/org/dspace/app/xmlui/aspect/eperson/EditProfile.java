@@ -24,14 +24,7 @@ import org.apache.log4j.Logger;
 import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
 import org.dspace.app.xmlui.wing.Message;
 import org.dspace.app.xmlui.wing.WingException;
-import org.dspace.app.xmlui.wing.element.Body;
-import org.dspace.app.xmlui.wing.element.Button;
-import org.dspace.app.xmlui.wing.element.Division;
-import org.dspace.app.xmlui.wing.element.Field;
-import org.dspace.app.xmlui.wing.element.List;
-import org.dspace.app.xmlui.wing.element.PageMeta;
-import org.dspace.app.xmlui.wing.element.Select;
-import org.dspace.app.xmlui.wing.element.Text;
+import org.dspace.app.xmlui.wing.element.*;
 import org.dspace.content.Collection;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.I18nUtil;
@@ -148,6 +141,9 @@ public class EditProfile extends AbstractDSpaceTransformer
     
     private static final Message T_head_security =
         message("xmlui.EPerson.EditProfile.head_security");
+
+    private static final Message T_add_phone_number =
+            message("xmlui.EPerson.EditProfile.add_phone_number");
     
     private static Locale[] supportedLocales = getSupportedLocales();
     static
@@ -229,7 +225,7 @@ public class EditProfile extends AbstractDSpaceTransformer
        log.info(LogManager.getHeader(context, "view_profile", ""));
 
        Request request = ObjectModelHelper.getRequest(objectModel);
-       
+
        String defaultFirstName="",defaultLastName="",defaultPhone="";
        String defaultLanguage=null;
        if (request.getParameter("submit") != null)
@@ -277,13 +273,15 @@ public class EditProfile extends AbstractDSpaceTransformer
        {
            EPersonUtils.registrationProgressList(profile, 2);
        }
-       
-       
-       
-       
-       
+
+       if(request.getSession().getAttribute("MISSING_PHONE")!=null){
+           Division div = profile.addDivision("notice", "notice");
+           Para p = div.addPara();
+           p.addContent(T_add_phone_number);
+           request.getSession().removeAttribute("MISSING_PHONE");
+       }
        List form = profile.addList("form",List.TYPE_FORM);
-       
+
        List identity = form.addList("identity",List.TYPE_FORM);
        identity.setHead(T_head_identify);
        
@@ -437,7 +435,7 @@ public class EditProfile extends AbstractDSpaceTransformer
        {
            submit.setValue(T_submit_create);
        }
-       
+
        profile.addHidden("eperson-continue").setValue(knot.getId());
        
        
