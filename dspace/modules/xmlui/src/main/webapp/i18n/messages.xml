@@ -520,6 +520,7 @@
 	<message key="xmlui.EPerson.EditProfile.first_name">First Name</message>
 	<message key="xmlui.EPerson.EditProfile.last_name">Last Name</message>
 	<message key="xmlui.EPerson.EditProfile.telephone">Contact Telephone</message>
+	<message key="xmlui.EPerson.EditProfile.telephone_help">Dryad requires a phone number as a backup to email for contact purposes. We will only contact you via the phone number if we are unable to contact you via email.</message>
 	<message key="xmlui.EPerson.EditProfile.Language">Language</message>
 	<message key="xmlui.EPerson.EditProfile.subscriptions">Subscriptions</message>
 	<message key="xmlui.EPerson.EditProfile.subscriptions_help">You may subscribe to collections to
@@ -546,7 +547,7 @@
 	<message key="xmlui.EPerson.EditProfile.head_auth">Authorization groups your belong to</message>
 	<message key="xmlui.EPerson.EditProfile.head_identify">Identity</message>
 	<message key="xmlui.EPerson.EditProfile.head_security">Security</message>
-    <message key="xmlui.EPerson.EditProfile.add_phone_number">Please add you phone number.</message>
+    <message key="xmlui.EPerson.EditProfile.add_phone_number">Dryad now requires a phone number as a backup to email for contact purposes. Please add your phone number below.</message>
 
 	<!-- org.dspace.app.xmlui.eperson.EPersonUtils.java -->
 	<message key="xmlui.EPerson.EPersonUtils.register_verify_email">Verify Email</message>

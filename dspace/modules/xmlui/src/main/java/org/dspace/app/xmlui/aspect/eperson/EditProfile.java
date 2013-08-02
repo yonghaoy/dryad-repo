@@ -93,6 +93,9 @@ public class EditProfile extends AbstractDSpaceTransformer
     
     private static final Message T_telephone =
         message("xmlui.EPerson.EditProfile.telephone");
+
+    private static final Message T_telephone_help =
+        message("xmlui.EPerson.EditProfile.telephone_help");
     
     private static final Message T_language =
         message("xmlui.EPerson.EditProfile.Language");
@@ -322,6 +325,7 @@ public class EditProfile extends AbstractDSpaceTransformer
        phone.setLabel(T_telephone);
        phone.setRequired();
        phone.setValue(defaultPhone);
+       phone.setHelp(T_telephone_help);
        if (errors.contains("phone"))
        {
            phone.addError(T_error_required);
