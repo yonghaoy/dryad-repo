@@ -313,12 +313,29 @@ function initFirstSubmissionForm() {
                 var journal = jQuery("#aspect_submission_StepTransformer_field_prism_publicationName").val();
 
 
+                var journal_integrated_length = jQuery("#aspect_submission_StepTransformer_field_journalIDStatusIntegrated option").length;
+                // alert(journal_integrated_length);
+                var integrated = false;
+
+                for (var i=0; i<journal_integrated_length; i++)
+                {
+                    var integrated = document.getElementById('aspect_submission_StepTransformer_field_journalIDStatusIntegrated').options[i].value;
+                    //alert(integrated);
+
+                    if(integrated == journal)
+                    {
+                        //alert('found');
+                        integrated = true;
+                        break;
+                    }
+                }
 
                 if(journal==""){
                     jQuery("#aspect_submission_StepTransformer_item_manu-number-status-accepted").hide();
                     jQuery("#aspect_submission_StepTransformer_item_manu_accepted-cb").hide();
                 }
-                else if (journal.indexOf('*') != -1) {
+                //else if (journal.indexOf('*') != -1) {
+                else if(integrated == true){
                     jQuery("#aspect_submission_StepTransformer_item_manu-number-status-accepted").show();
                     jQuery("#aspect_submission_StepTransformer_item_manu_accepted-cb").hide();
                 }
@@ -459,27 +476,27 @@ function subscribeMailingList(form) {
         subscribeButton.attr("disabled", "disabled").attr("value","Subscribing...");
         var subscribeURL = '/subscribe';
         jQuery.ajax({
-          url: subscribeURL,
-          data: jQuery(form).serialize()
+            url: subscribeURL,
+            data: jQuery(form).serialize()
         }).done(function(data) {
-            // Remove the email input and replace with thank you text
-            var emailField = jQuery('#file_news_div_mailing_list_input_email');
-            emailField.parent().text("Thank you for signing up!")
-            emailField.remove();
-            var subscribeButton = jQuery('#file_news_div_mailing_list_input_subscribe');
-            subscribeButton.attr("disabled", "disabled").attr("value","Subscribed!");    
-        }).fail(function(data) {
-            // Remove the email input and replace with thank you text
-            var errorText = jQuery("<span>")
-                .attr("id", "file_news_div_mailing_list_input_email_error")
-                .text("An error occurred, please try again.")
-                .addClass("error");
-            errorText.insertAfter(emailField);
-            emailField.addClass("error");
-            var subscribeButton = jQuery('#file_news_div_mailing_list_input_subscribe');
-            subscribeButton.removeAttr("disabled");
-            subscribeButton.attr("value","Subscribe");    
-        });
+                // Remove the email input and replace with thank you text
+                var emailField = jQuery('#file_news_div_mailing_list_input_email');
+                emailField.parent().text("Thank you for signing up!")
+                emailField.remove();
+                var subscribeButton = jQuery('#file_news_div_mailing_list_input_subscribe');
+                subscribeButton.attr("disabled", "disabled").attr("value","Subscribed!");
+            }).fail(function(data) {
+                // Remove the email input and replace with thank you text
+                var errorText = jQuery("<span>")
+                    .attr("id", "file_news_div_mailing_list_input_email_error")
+                    .text("An error occurred, please try again.")
+                    .addClass("error");
+                errorText.insertAfter(emailField);
+                emailField.addClass("error");
+                var subscribeButton = jQuery('#file_news_div_mailing_list_input_subscribe');
+                subscribeButton.removeAttr("disabled");
+                subscribeButton.attr("value","Subscribe");
+            });
     }
     return false;
 }

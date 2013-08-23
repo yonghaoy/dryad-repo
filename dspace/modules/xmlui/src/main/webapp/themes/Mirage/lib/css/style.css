@@ -1484,7 +1484,7 @@ a.learn-to-submit-button {
 
 #sign-up-item {
     margin-left: 4px;
-}    
+}
 
 a.submitnowbutton {
     background-color: #424242;
@@ -2348,4 +2348,10 @@ li#aspect_paymentsystem_ShoppingCartTransformer_item_voucher-list div{
 #aspect_submission_submit_CheckoutStep_list_paypal-form-buttons{
     list-style: none;
     padding:10px;
+}
+#aspect_submission_StepTransformer_field_journalIDStatusIntegrated{
+    display:none;
+}
+#journalIDStatusIntegrated label{
+    display:none;
 }
