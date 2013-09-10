@@ -453,7 +453,7 @@ references to stylesheets pulled directly from the pageMeta element. -->
                                   <a href="/pages/faq#using">Use data</a>
                                 </li>
                                 <li>
-                                  <a href="/pages/integratedJournals">Currently integrated journals</a>
+                                  <a href="/pages/integratedJournals">Look up your journal</a>
                                 </li>
                                 <li>
                                     <a href="/pages/policies">Terms of service</a>
@@ -635,6 +635,15 @@ references to stylesheets pulled directly from the pageMeta element. -->
                         <xsl:attribute name="href">
                             <xsl:value-of
                                     select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='contextPath'][not(@qualifier)]"/>
+                            <xsl:text>/pages/policies</xsl:text>
+                        </xsl:attribute>
+                        <i18n:text>xmlui.dri2xhtml.structural.footer-terms-of-service</i18n:text>
+                    </a>
+		     | 
+                    <a>
+                        <xsl:attribute name="href">
+                            <xsl:value-of
+                                    select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='contextPath'][not(@qualifier)]"/>
                             <xsl:text>/feedback</xsl:text>
                         </xsl:attribute>
                         <i18n:text>xmlui.dri2xhtml.structural.contact-link</i18n:text>
@@ -694,7 +703,7 @@ references to stylesheets pulled directly from the pageMeta element. -->
     -->
     <xsl:template match="dri:body">
         <div id="ds-body">
-            <xsl:if test="not(/dri:document/dri:options/dri:list[@n='discovery'] or /dri:document/dri:options/dri:list[@n='DryadSubmitData'] or /dri:document/dri:options/dri:list[@n='DryadSearch'] or /dri:document/dri:options/dri:list[@n='DryadConnect'])">
+            <xsl:if test="not(/dri:document/dri:options/dri:list[@n='Payment'] or /dri:document/dri:options/dri:list[@n='discovery'] or /dri:document/dri:options/dri:list[@n='DryadSubmitData'] or /dri:document/dri:options/dri:list[@n='DryadSearch'] or /dri:document/dri:options/dri:list[@n='DryadConnect'])">
                 <xsl:attribute name="style">
                     <xsl:text>width:100%</xsl:text>
                 </xsl:attribute>
