@@ -1197,4 +1197,14 @@ parameter that is being used (see variable defined above) -->
         </label>
         <xsl:apply-templates select="." mode="normalField"/>
     </xsl:template>
+
+    <!-- remove voucher link -->
+    <xsl:template match="//dri:item[@id='aspect.paymentsystem.ShoppingCartTransformer.item.remove-voucher']/dri:xref">
+        <a id="remove-voucher" href="#">
+            <xsl:attribute name="onclick">
+                <xsl:text>javascript:removeVoucher()</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="."/>
+        </a>
+    </xsl:template>
 </xsl:stylesheet>
