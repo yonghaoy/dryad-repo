@@ -637,4 +637,47 @@ public class PaymentSystemImpl implements PaymentSystemService {
 
     }
 
+    public void generateNoEditableShoppingCart(Context context,org.dspace.app.xmlui.wing.element.List info,ShoppingCart transaction,PaymentSystemConfigurationManager manager,String baseUrl,boolean selectCountry,Map<String,String> messages) throws WingException,SQLException
+    {
+        Item item = Item.find(context,transaction.getItem());
+        Long totalSize = new Long(0);
+        String symbol = PaymentSystemConfigurationManager.getCurrencySymbol(transaction.getCurrency());
+
+
+        org.dspace.app.xmlui.wing.element.List hiddenList = info.addList("transaction");
+        hiddenList.addItem().addHidden("transactionId").setValue(Integer.toString(transaction.getID()));
+        hiddenList.addItem().addHidden("baseUrl").setValue(baseUrl);
+        try{
+
+            //add selected currency section
+            info.addLabel(T_Header);
+            info.addItem().addContent(transaction.getCurrency());
+            generatePayer(context,info,transaction,item);
+            generatePrice(context,info,manager,transaction);
+            info.addItem().addContent(transaction.getCountry());
+            generateNoEditableVoucherForm(context,info,transaction,messages);
+        }catch (Exception e)
+        {
+
+            info.addLabel("Errors when generate the shopping cart form");
+        }
+
+
+    }
+
+    private void generateNoEditableVoucherForm(Context context,org.dspace.app.xmlui.wing.element.List info,ShoppingCart shoppingCart,Map<String,String> messages) throws WingException,SQLException{
+        Voucher voucher1 = Voucher.findById(context,shoppingCart.getVoucher());
+        if(messages.get("voucher")!=null)
+        {
+            info.addItem("errorMessage","errorMessage").addContent(messages.get("voucher"));
+        }
+        else
+        {
+            info.addItem("errorMessage","errorMessage").addContent("");
+        }
+
+        info.addLabel(T_Voucher);
+        info.addItem().addContent(voucher1.getCode());
+
+    }
 }

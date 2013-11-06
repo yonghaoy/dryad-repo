@@ -31,8 +31,10 @@ import org.dspace.app.xmlui.wing.WingException;
 import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.Options;
 import org.dspace.app.xmlui.wing.element.Select;
+import org.dspace.authenticate.AuthenticationManager;
 import org.dspace.authorize.AuthorizeException;
 
+import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
@@ -109,8 +111,15 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
             {
              selectCountry = true;
             }
-            payementSystemService.generateShoppingCart(context,info,shoppingCart,manager,request.getContextPath(),selectCountry,messages);
-
+            if(eperson.getEmail().equals(item.getSubmitter().getEmail()) || AuthorizeManager.isAdmin(context)){
+                //submiter and admin can edit shopping cart
+                payementSystemService.generateShoppingCart(context,info,shoppingCart,manager,request.getContextPath(),selectCountry,messages);
+            }
+            else
+            {
+                //curator can not edit shopping cart
+                payementSystemService.generateNoEditableShoppingCart(context, info, shoppingCart, manager, request.getContextPath(), selectCountry, messages);
+            }
             org.dspace.app.xmlui.wing.element.Item help = options.addList("need-help").addItem();
             help.addContent(T_CartHelp);
         }catch (Exception pe)
