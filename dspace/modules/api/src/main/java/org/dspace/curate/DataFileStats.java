@@ -14,8 +14,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -66,10 +71,16 @@ public class DataFileStats extends AbstractCurationTask {
     DocumentBuilder docb = null;
     static long total = 0;
     private Context context;
+    private static final String START_DATE_STRING = "2012-01-01T00:00:00Z";
+    private static final String END_DATE_STRING = "2014-01-01T00:00:00Z";
     private static List<String> journalsThatAllowReview = new ArrayList<String>();
     private static List<String> integratedJournals = new ArrayList<String>();
     private static List<String> integratedJournalsThatAllowEmbargo = new ArrayList<String>();
     
+    private static Date START_DATE = null;
+    private static Date END_DATE = null;
+    private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+
     @Override 
     public void init(Curator curator, String taskId) throws IOException {
         super.init(curator, taskId);
@@ -123,6 +134,13 @@ public class DataFileStats extends AbstractCurationTask {
     @Override
     public int perform(DSpaceObject dso) throws IOException {
 	log.info("performing DataFileStats task " + total++ );
+	try {
+	    START_DATE = df.parse(START_DATE_STRING);
+	    END_DATE = df.parse(END_DATE_STRING);
+	} catch (ParseException ex) {
+	    log.fatal("Unable to parse start or end date", ex);
+	    return Curator.CURATE_FAIL;
+	}
 	
 	String handle = "\"[no handle found]\"";
 	String fileDOI = "\"[no file DOI found]\"";
@@ -245,6 +263,23 @@ public class DataFileStats extends AbstractCurationTask {
 		    dateAccessioned = vals[0].value;
 		}
 		log.debug("dateAccessioned = " + dateAccessioned);
+
+                // Check date range
+                Date itemDate = null;
+                try {
+                    itemDate = df.parse(dateAccessioned);
+                } catch (ParseException ex) {
+                    setResult("Object has unparseable dc.date.accessioned " + handle);
+		    log.error("Unable to parse date " + dateAccessioned + " in item " + item.getHandle());
+		    context.abort();
+		    return Curator.CURATE_SKIP;
+                }
+
+                if(itemDate.before(START_DATE) || itemDate.after(END_DATE)) {
+                    log.debug("skipping item with accession date out of range: " + dateAccessioned);
+                    context.abort();
+                    return Curator.CURATE_SKIP;
+                }
 
 		// wentThroughReview
 		vals = item.getMetadata("dc.description.provenance");
