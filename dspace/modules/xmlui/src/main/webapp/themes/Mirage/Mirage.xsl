@@ -1235,7 +1235,7 @@ parameter that is being used (see variable defined above) -->
             <xsl:attribute name="onclick">
                 <xsl:text>javascript:removeVoucher()</xsl:text>
             </xsl:attribute>
-            <xsl:value-of select="."/>
+            <xsl:value-of select="."/>&#160;
         </a>
     </xsl:template>
 
@@ -1247,7 +1247,7 @@ parameter that is being used (see variable defined above) -->
             <xsl:attribute name="onclick">
                 <xsl:text>javascript:removeCountry()</xsl:text>
             </xsl:attribute>
-            <xsl:value-of select="."/>
+            <xsl:value-of select="."/>&#160;
         </a>
     </xsl:template>
 
