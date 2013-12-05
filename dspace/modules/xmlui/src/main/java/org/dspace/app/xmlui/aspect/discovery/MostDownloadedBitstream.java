@@ -109,7 +109,7 @@ public class MostDownloadedBitstream extends AbstractFiltersTransformer {
         queryArgs = prepareDefaultFilters(getView());
 
         queryArgs.setQuery("search.resourcetype:" + Constants.ITEM);
-
+        queryArgs.addFilterQuery("archived:true");
         queryArgs.setRows(-1);
 
         String sortField = SearchUtils.getConfig().getString("recent.submissions.sort-option");
