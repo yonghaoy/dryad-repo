@@ -39,7 +39,7 @@ public interface PaypalService
 {
     public String getSecureTokenId();
 
-    public String generateSecureToken(ShoppingCart shoppingCart, String secureTokenId, String itemID, String knotId);
+    public String generateSecureToken(ShoppingCart shoppingCart, String secureTokenId, Item item, String knotId);
 
     public boolean submitReferenceTransaction(Context c, WorkflowItem wfi, HttpServletRequest request);
 
@@ -51,7 +51,7 @@ public interface PaypalService
 
     public boolean chargeCard(Context c, WorkflowItem wfi, HttpServletRequest request, ShoppingCart shoppingCart);
 
-    public void generatePaypalForm(Division mandiv, ShoppingCart shoppingCart, String actionURL, String type) throws WingException, SQLException;
+    public void generatePaypalForm(Division mandiv, ShoppingCart shoppingCart, Item item,String actionURL, String type) throws WingException, SQLException;
 
     public void generateVoucherForm(Division form, String voucherCode, String actionURL, String knotId) throws WingException;
 

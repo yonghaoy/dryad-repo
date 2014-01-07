@@ -64,7 +64,7 @@ public class PaypalImpl implements PaypalService{
     }
 
     //generate a secure token from paypal
-    public String generateSecureToken(ShoppingCart shoppingCart,String secureTokenId,String itemID, String type){
+    public String generateSecureToken(ShoppingCart shoppingCart,String secureTokenId,Item item, String type){
         String secureToken=null;
         String requestUrl = ConfigurationManager.getProperty("payment-system","paypal.payflow.link");
 
@@ -86,6 +86,25 @@ public class PaypalImpl implements PaypalService{
             get.addParameter("RETURNURL", ConfigurationManager.getProperty("payment-system","paypal.returnurl"));
             get.addParameter("TENDER", "C");
             get.addParameter("TRXTYPE", type);
+            String userFirstName = "";
+            String userLastName = "";
+            String userEmail = "";
+            String userName = "";
+            try{
+
+                userFirstName = item.getSubmitter().getFirstName();
+                userLastName = item.getSubmitter().getLastName();
+                userEmail = item.getSubmitter().getEmail();
+                userName = item.getSubmitter().getFullName();
+            }catch (Exception e)
+            {
+                log.error("cant get submitter's user name for paypal transaction");
+            }
+            get.addParameter("FIRSTNAME",userFirstName);
+            get.addParameter("LASTNAME",userLastName);
+            get.addParameter("COMMENT1",userName);
+            get.addParameter("COMMENT2",userEmail);
+
             if(type.equals("S")){
                 //generate reauthorization form
                 get.addParameter("AMT", Double.toString(shoppingCart.getTotal()));
@@ -186,12 +205,6 @@ public class PaypalImpl implements PaypalService{
         //todo:debug to be true
         return true;
     }
-    public boolean getReferenceTransaction(Context context,WorkspaceItem workItem,HttpServletRequest request){
-        //return verifyCreditCard
-        verifyCreditCard(context,workItem.getItem(),request);
-        //todo:debug to be true
-        return true;
-    }
 
     //generate a reference transaction from paypal
     public boolean verifyCreditCard(Context context,Item item, HttpServletRequest request){
@@ -210,6 +223,19 @@ public class PaypalImpl implements PaypalService{
         String country = request.getParameter("BILLTOCOUNTRY");
         String state = request.getParameter("BILLTOSTATE");
         String zip = request.getParameter("BILLTOZIP");
+        String userFirstName = "";
+        String userLastName = "";
+        String userEmail = "";
+        String userName="";
+        try{
+            userFirstName = item.getSubmitter().getFirstName();
+            userLastName = item.getSubmitter().getLastName();
+            userEmail = item.getSubmitter().getEmail();
+            userName = item.getSubmitter().getFullName();
+        }catch (Exception e)
+        {
+            log.error("cant get submitter's user name for paypal transaction");
+        }
 
         String requestUrl = ConfigurationManager.getProperty("payment-system","paypal.link");
         try {
@@ -225,6 +251,7 @@ public class PaypalImpl implements PaypalService{
                 PostMethod get = new PostMethod(requestUrl);
 
                 get.addParameter("SECURETOKENID",secureTokenId);
+                get.addParameter("SECURETOKEN",secureToken);
                 get.addParameter("SECURETOKEN",secureToken);
 
                 get.addParameter("SILENTTRAN",ConfigurationManager.getProperty("payment-system","paypal.slienttran"));
@@ -248,8 +275,10 @@ public class PaypalImpl implements PaypalService{
                 get.addParameter("BILLTOCITY",city);
                 get.addParameter("BILLTOCOUNTRY",country);
                 get.addParameter("BILLTOZIP",zip);
-
-
+                get.addParameter("FIRSTNAME",userFirstName);
+                get.addParameter("LASTNAME",userLastName);
+                get.addParameter("COMMENT1",userName);
+                get.addParameter("COMMENT2",userEmail);
                 //TODO:add currency from shopping cart
                 get.addParameter("CURRENCY", shoppingCart.getCurrency());
 		log.debug("paypal transaction url " + get);
@@ -390,11 +419,11 @@ public class PaypalImpl implements PaypalService{
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void generatePaypalForm(Division maindiv,ShoppingCart shoppingCart,String actionURL,String type) throws WingException,SQLException {
+    public void generatePaypalForm(Division maindiv,ShoppingCart shoppingCart,Item item, String actionURL,String type) throws WingException,SQLException {
 
         //return false if there is error in loading from paypal
         String secureTokenId = getSecureTokenId();
-        String secureToken = generateSecureToken(shoppingCart,secureTokenId,Integer.toString(shoppingCart.getItem()),type);
+        String secureToken = generateSecureToken(shoppingCart,secureTokenId,item,type);
 
         if(secureToken==null){
             showSkipPaymentButton(maindiv,"Unfortunately, Dryad has encountered a problem communicating with our payment processor. Please continue, and we will contact you regarding payment. Error code: Secure-null");
@@ -533,7 +562,7 @@ public class PaypalImpl implements PaypalService{
                     paypalService.generateVoucherForm(voucher,null,actionURL,knotId);
                 }
                 Division creditcard = mainDiv.addDivision("creditcard");
-                paypalService.generatePaypalForm(creditcard,shoppingCart,actionURL,type);
+                paypalService.generatePaypalForm(creditcard,shoppingCart,item,actionURL,type);
 
             }
 

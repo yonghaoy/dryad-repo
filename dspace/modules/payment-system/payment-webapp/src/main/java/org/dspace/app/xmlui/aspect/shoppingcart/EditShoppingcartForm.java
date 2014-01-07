@@ -163,8 +163,8 @@ public class EditShoppingcartForm  extends AbstractDSpaceTransformer
             System.out.println(e.getMessage());
         }
 
-        String secureToken = shoppingcart.getSecureToken()==null? shoppingcart.getSecureToken(): "";
-        String transactionId = shoppingcart.getTransactionId()==null? shoppingcart.getTransactionId(): "";
+        String secureToken = shoppingcart.getSecureToken()==null? "":shoppingcart.getSecureToken();
+        String transactionId = shoppingcart.getTransactionId()==null? "":shoppingcart.getTransactionId();
         String country =  shoppingcart.getCountry();
         Integer depositorId = shoppingcart.getDepositor();
         EPerson depositor = EPerson.find(context,depositorId);
@@ -177,6 +177,7 @@ public class EditShoppingcartForm  extends AbstractDSpaceTransformer
         if(voucherId!=null&&voucherId>0)
         {
             voucher = Voucher.findById(context,voucherId);
+            if(voucher!=null)
             voucherCode = voucher.getCode();
         }
 
