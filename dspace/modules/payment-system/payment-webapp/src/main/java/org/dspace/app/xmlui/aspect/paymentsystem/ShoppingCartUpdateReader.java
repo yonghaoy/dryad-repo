@@ -161,7 +161,7 @@ public class ShoppingCartUpdateReader extends AbstractReader implements Recyclab
         if(request.getParameter("currency")!=null)
         {
             String currency=request.getParameter("currency") .toString();
-            payementSystemService.setCurrency(transaction,currency);
+            payementSystemService.setCurrency(context,transaction,currency);
 
         }
         if(request.getParameter("country")!=null)

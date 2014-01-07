@@ -122,7 +122,7 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
                     selectCountry = true;
                 }
 
-            if(request.getRequestURI().contains("deposit-confirmed"))
+            if(request.getRequestURI().contains("deposit-confirmed")||shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED))
             {
                 paymentSystemService.generateNoEditableShoppingCart(context,info,shoppingCart,manager,request.getContextPath(),selectCountry,messages);
             }

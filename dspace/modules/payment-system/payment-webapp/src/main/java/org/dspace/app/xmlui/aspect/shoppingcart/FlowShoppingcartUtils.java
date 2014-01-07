@@ -47,6 +47,7 @@ public class FlowShoppingcartUtils {
         String noInteg = request.getParameter("noInteg");
         String surCharge = request.getParameter("surCharge");
         String transactionId = request.getParameter("transactionId");
+        String status = request.getParameter("status");
         PaymentSystemService paymentSystemService = new DSpace().getSingletonService(PaymentSystemService.class);
         VoucherValidationService voucherValidationService = new DSpace().getSingletonService(VoucherValidationService.class);
         Voucher voucher = null;
@@ -63,10 +64,7 @@ public class FlowShoppingcartUtils {
 
 
         // If we have errors, the form needs to be resubmitted to fix those problems
-        // currency and country should be null
-        if (StringUtils.isEmpty(country)) {
-            result.addError("country");
-        }
+        // currency should not be null
         if (StringUtils.isEmpty(currency)) {
             result.addError("currency");
         }
@@ -84,16 +82,16 @@ public class FlowShoppingcartUtils {
            }
         }
 
-        String note = request.getParameter("note");
-        if (!StringUtils.isEmpty(note)){
-            shoppingCart.setNote(note);
-        }
-        else
-        {
-            shoppingCart.setNote(null);
-        }
 
         if (result.getErrors() == null) {
+            String note = request.getParameter("note");
+            if (!StringUtils.isEmpty(note)){
+                shoppingCart.setNote(note);
+            }
+            else
+            {
+                shoppingCart.setNote(null);
+            }
 
             if (!StringUtils.isEmpty(voucherCode)) {
 
@@ -120,7 +118,7 @@ public class FlowShoppingcartUtils {
                 }
             }
             if (currency != null && !currency.equals(currencyOriginal)) {
-                paymentSystemService.setCurrency(shoppingCart,currency);
+                paymentSystemService.setCurrency(context,shoppingCart,currency);
             }
             else{
                 //only when the currency doesn't change then change the individual rate
@@ -157,7 +155,10 @@ public class FlowShoppingcartUtils {
                     shoppingCart.setTransactionId(transactionId);
                 }
             }
-
+            if(!StringUtils.isEmpty(status))
+            {
+               shoppingCart.setStatus(status);
+            }
 
             paymentSystemService.updateTotal(context,shoppingCart,null);
             context.commit();

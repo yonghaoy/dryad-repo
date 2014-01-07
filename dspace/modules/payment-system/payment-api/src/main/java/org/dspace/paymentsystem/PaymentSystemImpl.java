@@ -124,7 +124,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
 
     public void modifyShoppingCart(Context context,ShoppingCart shoppingcart,DSpaceObject dso)throws AuthorizeException, SQLException,PaymentSystemException{
 
-        if(shoppingcart.getModified())
+        if(shoppingcart.getModified()&&!shoppingcart.getStatus().equals(ShoppingCart.STATUS_COMPLETED))
         {
             shoppingcart.update();
             shoppingcart.setModified(false);
@@ -132,14 +132,16 @@ public class PaymentSystemImpl implements PaymentSystemService {
 
     }
 
-    public void setCurrency(ShoppingCart shoppingCart,String currency)throws SQLException{
-        shoppingCart.setCurrency(currency);
-        shoppingCart.setBasicFee(PaymentSystemConfigurationManager.getCurrencyProperty(currency));
-        shoppingCart.setNoInteg(PaymentSystemConfigurationManager.getNotIntegratedJournalFeeProperty(currency));
-        shoppingCart.setSurcharge(PaymentSystemConfigurationManager.getSizeFileFeeProperty(currency));
-        shoppingCart.update();
-        shoppingCart.setModified(false);
-
+    public void setCurrency(Context context,ShoppingCart shoppingCart,String currency)throws SQLException{
+        if(!shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED)){
+            shoppingCart.setCurrency(currency);
+            shoppingCart.setBasicFee(PaymentSystemConfigurationManager.getCurrencyProperty(currency));
+            shoppingCart.setNoInteg(PaymentSystemConfigurationManager.getNotIntegratedJournalFeeProperty(currency));
+            shoppingCart.setSurcharge(PaymentSystemConfigurationManager.getSizeFileFeeProperty(currency));
+            updateTotal(context,shoppingCart,"");
+            shoppingCart.update();
+            shoppingCart.setModified(false);
+        }
     }
 
     public void deleteShoppingCart(Context context,Integer shoppingcartId) throws AuthorizeException, SQLException, PaymentSystemException {
@@ -566,13 +568,15 @@ public class PaymentSystemImpl implements PaymentSystemService {
             info.addItem("errorMessage", "errorMessage").addContent("");
 
         }
+        if(voucher1!=null){
         info.addLabel(T_Voucher);
         info.addItem().addContent(voucher1.getCode());
+        }
     }
 
     private void generateCountryList(org.dspace.app.xmlui.wing.element.List info,PaymentSystemConfigurationManager manager,ShoppingCart shoppingCart,Item item,Boolean selectCountry) throws WingException{
         //only generate country selection list when it is not on the publication select page, to do this we need to check the publication is not empty
-        if(selectCountry)
+        if(selectCountry&&!shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED))
         {
             java.util.List<String> countryArray = manager.getSortedCountry();
             info.addLabel(T_Country);
@@ -590,7 +594,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
             }
         }
 
-        if(shoppingCart.getCountry().length()>0)
+        if(shoppingCart.getCountry()!=null&&shoppingCart.getCountry().length()>0)
         {
             info.addItem("remove-country","remove-country").addXref("#","Remove Country : "+shoppingCart.getCountry());
         }
