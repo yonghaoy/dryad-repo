@@ -110,16 +110,16 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
 
             //todo:find a better way to detect the step we are in
 
-            boolean selectCountry=false;
+            boolean selectCountry=true;
             Item dataPackage = DryadWorkflowUtils.getDataPackage(context,item);
             if(dataPackage==null){
                 dataPackage=item;
             }
             DCValue[] value = dataPackage.getMetadata("prism.publicationName");
-            if(value!=null&&value.length>0)
+            if((value==null||value.length==0)&&request.getRequestURI().startsWith("/handle"))
                 {
                     //only when the select journal we will remove the country list
-                    selectCountry = true;
+                    selectCountry = false;
                 }
 
             if(request.getRequestURI().contains("deposit-confirmed")||shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED))

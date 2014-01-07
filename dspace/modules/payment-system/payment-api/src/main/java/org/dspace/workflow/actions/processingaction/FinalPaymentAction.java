@@ -79,7 +79,12 @@ public class FinalPaymentAction extends ProcessingAction {
 		}
 	    }
 			  
-
+        if(paymentSystemService.hasDiscount(c,shoppingCart,""))
+        {
+            //if any type of discount exist the transaction is paid
+            shoppingCart.setStatus(ShoppingCart.STATUS_COMPLETED);
+            shoppingCart.update();
+        }
 	    
 	    // process payment via PayPal
             PaypalService paypalService = new DSpace().getSingletonService(PaypalService.class);
