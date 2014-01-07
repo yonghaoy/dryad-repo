@@ -537,9 +537,18 @@ public class PaypalImpl implements PaypalService{
                 }
 
             }
-
+            Date today = new Date();
+            if(type.equals("A")){
+                //use payment form for authorization
+                shoppingCart.setOrderDate(today);
+            }
             if(shoppingCart.getTotal()==0||shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED)||!shoppingCart.getCurrency().equals("USD"))
             {
+                //paid
+                if(shoppingCart.getPaymentDate()==null){
+                    shoppingCart.setPaymentDate(today);
+                }
+                shoppingCart.setStatus(ShoppingCart.STATUS_COMPLETED);
                 paypalService.generateNoCostForm(mainDiv, shoppingCart,item, manager, payementSystemService);
             }
             else
@@ -565,6 +574,7 @@ public class PaypalImpl implements PaypalService{
                 paypalService.generatePaypalForm(creditcard,shoppingCart,item,actionURL,type);
 
             }
+                shoppingCart.update();
 
             }
         }catch (Exception e)
