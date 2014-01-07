@@ -23,6 +23,7 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Date;
 
 
 /**
@@ -83,6 +84,12 @@ public class FinalPaymentAction extends ProcessingAction {
         {
             //if any type of discount exist the transaction is paid
             shoppingCart.setStatus(ShoppingCart.STATUS_COMPLETED);
+            Date date= new Date();
+            if(shoppingCart.getOrderDate()==null)
+            {
+                shoppingCart.setOrderDate(date);
+            }
+            shoppingCart.setPaymentDate(date);
             shoppingCart.update();
         }
 	    

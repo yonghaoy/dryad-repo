@@ -384,6 +384,10 @@ public class PaypalImpl implements PaypalService{
                             shoppingCart.setStatus(ShoppingCart.STATUS_COMPLETED);
                             Date date= new Date();
                             shoppingCart.setPaymentDate(date);
+                            if(shoppingCart.getOrderDate()==null)
+                            {
+                                shoppingCart.setOrderDate(date);
+                            }
                             for(String s:results)
                             {
                                 String[] strings = s.split("=");
@@ -544,6 +548,10 @@ public class PaypalImpl implements PaypalService{
             }
             if(shoppingCart.getTotal()==0||shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED)||!shoppingCart.getCurrency().equals("USD"))
             {
+                if(shoppingCart.getOrderDate()==null)
+                {
+                    shoppingCart.setOrderDate(today);
+                }
                 //paid
                 if(shoppingCart.getPaymentDate()==null){
                     shoppingCart.setPaymentDate(today);

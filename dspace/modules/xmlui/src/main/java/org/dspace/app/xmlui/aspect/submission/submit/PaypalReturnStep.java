@@ -97,6 +97,10 @@ public class PaypalReturnStep extends AbstractStep {
                                      shoppingCart.setStatus(ShoppingCart.STATUS_COMPLETED);
                                      Date now = new Date();
                                      shoppingCart.setPaymentDate(now);
+                                     if(shoppingCart.getOrderDate()==null)
+                                     {
+                                         shoppingCart.setOrderDate(now);
+                                     }
                                  }
                                 //submitUrl = FlowUtils.processPaypalCheckout(context, request,response,item);
 				 body.addDivision("successful").addPara(T_PayPalVerified);
