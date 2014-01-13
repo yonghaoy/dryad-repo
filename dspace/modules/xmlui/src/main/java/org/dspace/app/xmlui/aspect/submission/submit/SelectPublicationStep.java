@@ -139,8 +139,7 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
         String manuscriptNumber = request.getParameter("manu");
 	log.debug("initializing submission UI for journal " + selectedJournalId + ", manu " + manuscriptNumber);
         PublicationBean pBean = null;
-
-
+	
         // get journal status and name
         String journalStatus = null;
         String journalName = null;
@@ -153,15 +152,11 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
                 pBean = ModelPublication.getDataFromPublisherFile(manuscriptNumber, selectedJournalId, journalPath);
                 journalStatus = pBean.getStatus();
                 journalName = pBean.getJournalName();
-//                if(journalName!=null && !journalName.equals("")) {
-//                    if(org.dspace.submit.step.SelectPublicationStep.integratedJournals.contains(selectedJournalId))
-//                        journalName += "*";
-//                }
             }catch (Exception e)
             {
                  //invalid journalID
                 this.errorFlag = org.dspace.submit.step.SelectPublicationStep.ERROR_INVALID_JOURNAL;
-
+		log.error("Error getting parameters for invalid JournalID: " + selectedJournalId, e);
             }
         }
 
@@ -362,8 +357,6 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
         for (int i = 0; i < journalVals.size(); i++){
             String val =  journalVals.get(i);
             String name =  journalNames.get(i);
-//            if(org.dspace.submit.step.SelectPublicationStep.integratedJournals.contains(val))
-//                name += "*";
 
             // add only journal with allowReviewWorkflow=true;
             if(org.dspace.submit.step.SelectPublicationStep.allowReviewWorkflowJournals.contains(val))
@@ -502,33 +495,31 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
         if(selectedCountry==null)
         {
             try{
-                SubmissionInfo submissionInfo=(SubmissionInfo)request.getAttribute("dspace.submission.info");
-                org.dspace.content.Item item = null;
-                if(submissionInfo==null)
-                    {
-                                String workflowId = request.getParameter("workflowID");
-                    if(workflowId==null) {
-                            // item is no longer in submission OR workflow, probably archived, so we don't need shopping cart info
-                                    return;
-                        }
-                    WorkflowItem workflowItem = WorkflowItem.find(context,Integer.parseInt(workflowId));
-                    item = workflowItem.getItem();
+            SubmissionInfo submissionInfo=(SubmissionInfo)request.getAttribute("dspace.submission.info");
+            org.dspace.content.Item item = null;
+            if(submissionInfo==null)
+            {
+                String workflowId = request.getParameter("workflowID");
+                if(workflowId==null) {
+                    // item is no longer in submission OR workflow, probably archived, so we don't need shopping cart info
+                    return;
                 }
-                else
-                {
-                            item = submissionInfo.getSubmissionItem().getItem();
-                }
-                ShoppingCart shoppingCart = ShoppingCart.findAllByItem(context,item.getID()).get(0);
-                if(shoppingCart!=null){
-                        selectedCountry = shoppingCart.getCountry();
-                    }
-                }catch (Exception e)
-                {
+                WorkflowItem workflowItem = WorkflowItem.find(context,Integer.parseInt(workflowId));
+                item = workflowItem.getItem();
+            }
+            else
+            {
+                item = submissionInfo.getSubmissionItem().getItem();
+            }
+            ShoppingCart shoppingCart = ShoppingCart.findAllByItem(context,item.getID()).get(0);
+            if(shoppingCart!=null){
+                selectedCountry = shoppingCart.getCountry();
+            }
+            }catch (Exception e)
+            {
 
-                }
+            }
         }
-
-
 
         for(String temp:countryArray){
             {
