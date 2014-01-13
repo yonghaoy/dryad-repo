@@ -11,8 +11,6 @@ package org.dspace.app.xmlui.aspect.paymentsystem;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.cocoon.environment.ObjectModelHelper;
@@ -59,6 +57,25 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
 
     private static final Logger log = Logger.getLogger(AbstractDSpaceTransformer.class);
 
+    protected static final Message T_Header=
+            message("xmlui.PaymentSystem.shoppingcart.order.header");
+
+    protected static final Message T_Payer=
+            message("xmlui.PaymentSystem.shoppingcart.order.payer");
+    protected static final Message T_Price=
+            message("xmlui.PaymentSystem.shoppingcart.order.price");
+    protected static final Message T_Surcharge=
+            message("xmlui.PaymentSystem.shoppingcart.order.surcharge");
+    protected static final Message T_Total=
+            message("xmlui.PaymentSystem.shoppingcart.order.total");
+    protected static final Message T_noInteg=
+            message("xmlui.PaymentSystem.shoppingcart.order.noIntegrateFee");
+    protected static final Message T_Country=
+            message("xmlui.PaymentSystem.shoppingcart.order.country");
+    protected static final Message T_Voucher=
+            message("xmlui.PaymentSystem.shoppingcart.order.voucher");
+   protected static final Message T_Apply=
+            message("xmlui.PaymentSystem.shoppingcart.order.apply");
     protected static final Message T_CartHelp=
             message("xmlui.PaymentSystem.shoppingcart.help");
     private static final String DSPACE_SUBMISSION_INFO = "dspace.submission.info";
@@ -67,10 +84,7 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
             SQLException, IOException, AuthorizeException {
 
         Request request = ObjectModelHelper.getRequest(objectModel);
-        String shoppingCartExist =  request.getParameter("shopping-cart-exist");
-        if(shoppingCartExist==null||!shoppingCartExist.equals("true")){
-            Map<String,String> messages = new HashMap<String,String>();
-            //shoppingcart doesn't exist then add one in the option section
+
         PaymentSystemConfigurationManager manager = new PaymentSystemConfigurationManager();
         Enumeration s = request.getParameterNames();
         Enumeration v = request.getAttributeNames();
@@ -96,21 +110,15 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
 
             //DryadJournalSubmissionUtils.journalProperties.get("");
             PaymentSystemService payementSystemService = new DSpace().getSingletonService(PaymentSystemService.class);
-            ShoppingCart shoppingCart = null;
+            ShoppingCart transaction = null;
             //create new transaction or update transaction id with item
-            shoppingCart = payementSystemService.getShoppingCartByItemId(context,item.getID());
-            payementSystemService.updateTotal(context,shoppingCart,null);
+            transaction = getTransaction(item, payementSystemService);
+            payementSystemService.updateTotal(context,transaction,null);
 
             //add the order summary form (wrapped in div.ds-option-set for proper sidebar style)
             List info = options.addList("Payment",List.TYPE_FORM,"paymentsystem");
-            //todo:find a better way to detect the step we are in
-            boolean selectCountry=false;
-            DCValue[] values= item.getMetadata("prism.publicationName");
-            if(values!=null&&values.length>0)
-            {
-             selectCountry = true;
-            }
-            payementSystemService.generateShoppingCart(context,info,shoppingCart,manager,request.getContextPath(),selectCountry,messages);
+
+            generateOrderFrom(info,transaction,manager,payementSystemService,request.getContextPath());
 
             org.dspace.app.xmlui.wing.element.Item help = options.addList("need-help").addItem();
             help.addContent(T_CartHelp);
@@ -270,7 +278,37 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
         {
             info.addItem("no-integret","no-integret").addContent(String.format("%s%.0f", symbol, noIntegrateFee));
         }
+        else
+        {
+            info.addItem("no-integret","no-integret").addContent(symbol+"0");
+        }
+        generateSurchargeFeeForm(info,manager,shoppingCart,paymentSystemService);
+
+
+        //add the final total price
+        info.addLabel(T_Total);
+        info.addItem("total","total").addContent(String.format("%s%.0f",symbol, shoppingCart.getTotal()));
+        info.addItem("waiver-info","waiver-info").addContent(waiverMessage);
     }
+    private void generatePayer(Request request,org.dspace.app.xmlui.wing.element.List info,ShoppingCart shoppingCart,PaymentSystemService paymentSystemService,Item item) throws WingException,SQLException{
+        info.addLabel(T_Payer);
+        String payerName = paymentSystemService.getPayer(context, shoppingCart, null);
+        //if(request.getRequestURI().endsWith("submit"))
+        DCValue[] values= item.getMetadata("prism.publicationName");
+        //WorkspaceItem submission=WorkspaceItem.find(context,item.getID());
+        if(values!=null&&values.length>0)
+        {
+            //on the first page don't generate the payer name, wait until user choose country or journal
+            info.addItem("payer","payer").addContent(payerName);
+        }
+        else
+        {
+            info.addItem("payer","payer").addContent("");
+        }
+
+
+    }
+
 
 
 }
