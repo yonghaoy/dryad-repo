@@ -65,15 +65,11 @@ public class CheckoutStep extends AbstractStep {
         Division helpDivision = body.addDivision("general-help","general-help");
         helpDivision.setHead(T_HEAD);
         helpDivision.addPara(T_HELP);
-
-        Division mainDiv = body.addInteractiveDivision("submit-completed-dataset", actionURL, Division.METHOD_POST, "primary submission");
-
         Request request = ObjectModelHelper.getRequest(objectModel);
         SubmissionInfo submissionInfo=(SubmissionInfo)request.getAttribute("dspace.submission.info");
         org.dspace.content.Item item = submissionInfo.getSubmissionItem().getItem();
-        DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
         PaypalService paypalService = new DSpace().getSingletonService(PaypalService.class);
-        paypalService.generateUserForm(context,mainDiv,actionURL,knot.getId(),"A",request,item,dso);
+        paypalService.generateUserForm(context,body,actionURL,knot.getId(),"A",request,item);
 
 
     }

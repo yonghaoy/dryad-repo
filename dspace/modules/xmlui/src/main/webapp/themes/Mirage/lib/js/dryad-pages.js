@@ -13,18 +13,6 @@ jQuery(document).ready(function() {
     if(jQuery('#aspect_paymentsystem_ShoppingCartTransformer_field_voucher').length>0){
         shoeShoppingCartWaiver(null);
     }
-    jQuery('#aspect_submission_workflow_WorkflowTransformer_field_skip_payment').css('display','none');
-    jQuery('#aspect_submission_submit_CheckoutStep_field_skip_payment').css('display','none');
-    //if there is error in generate the paypal form or payment is 0 enable the skip button
-    var showButton = jQuery('input[name=show_button]');
-    if(showButton!='undefined'&&showButton!=null&&showButton.length>0){
-        var buttonId = "#aspect_submission_submit_CheckoutStep_field_skip_payment";
-        jQuery(buttonId).show();
-        jQuery(buttonId).val(showButton.val());
-        buttonId = "#aspect_submission_workflow_WorkflowTransformer_field_skip_payment";
-        jQuery(buttonId).show();
-        jQuery(buttonId).val(showButton.val());
-    }
 
 
 

@@ -34,6 +34,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Provides Return Step from Paypal to present result from processed Paypal transaction
@@ -52,78 +53,86 @@ public class PaypalReturnStep extends AbstractStep {
         public void addBody(Body body) throws SAXException, WingException, UIException, SQLException, IOException, AuthorizeException {
 
             Request request = ObjectModelHelper.getRequest(objectModel);
-            String submitUrl = "";
             String secureToken = request.getParameter("SECURETOKEN");
             String result = request.getParameter("RESULT");
             String message = request.getParameter("RESPMSG");
-
             String reference = request.getParameter("PNREF");
+            String type = request.getParameter("TRXTYPE");
+            String time = request.getParameter("TRANSTIME");
+            Map requests = request.getParameters();
+            //Date now = new Date(time);
+            Date now = new Date();
+            PaypalService paypalService = new DSpace().getSingletonService(PaypalService.class);
+            PaymentSystemService paymentSystemService = new DSpace().getSingletonService(PaymentSystemService.class);
             Response response = ObjectModelHelper.getResponse(objectModel);
-
-	    log.debug("paypal secureToken = " + secureToken);
-	    log.debug("paypal result = " + result);
-	    log.debug("paypal message = " + message);
-	    log.debug("paypal reference = " + reference);
-	    
+            log.debug("paypal secureToken = " + secureToken);
+            log.debug("paypal result = " + result);
+            log.debug("paypal message = " + message);
+            log.debug("paypal reference = " + reference);
             if(secureToken!=null){
                 try{
                     //find the correct shopping cart based on the secrue token
                     ShoppingCart shoppingCart = ShoppingCart.findBySecureToken(context,secureToken);
+                    int itemId = shoppingCart.getItem();
+                    Item item = Item.find(context,itemId);
                     if(shoppingCart!=null){
                         if("0".equals(result) || "4".equals(result))
                         {
                             //successful transaction
                             shoppingCart.setTransactionId(reference);
 
-
-                            int itemId = shoppingCart.getItem();
-                            Item item = Item.find(context,itemId);
                             if(item!=null)
                             {
                                  if(message.equals("Verified")){
                                      //authorization
                                     shoppingCart.setStatus(ShoppingCart.STATUS_VERIFIED);
-                                     Date now = new Date();
                                      shoppingCart.setOrderDate(now);
                                  }
-				 else if ("4".equals(result)) {
-				     //authorization, but paypal isn't supporting our zero-dollar transaction
+				                 else if ("4".equals(result)) {
+				                    //authorization, but paypal isn't supporting our zero-dollar transaction
                                     shoppingCart.setStatus(ShoppingCart.STATUS_VERIFIED);
-                                     Date now = new Date();
                                      shoppingCart.setOrderDate(now);
-				 }
-				 else
+				                 }
+				                 else
                                  {
                                      shoppingCart.setStatus(ShoppingCart.STATUS_COMPLETED);
-                                     Date now = new Date();
                                      shoppingCart.setPaymentDate(now);
                                  }
                                 //submitUrl = FlowUtils.processPaypalCheckout(context, request,response,item);
-				 body.addDivision("successful").addPara(T_PayPalVerified);
-				 body.addDivision("show_button").addHidden("show_button").setValue(T_Finalize);
+
                             }
                             else
                             {
                                 shoppingCart.setStatus(ShoppingCart.STATUS_DENIlED);
-                                addErrorLink(body,"Not a valid shopping cart");
                             }
                         }
                         else
                         {
                             shoppingCart.setStatus(ShoppingCart.STATUS_DENIlED);
-                            //error in trasaction
-                            addErrorLink(body,"We're sorry, but Dryad experienced an error in validating your method of payment. Error code:"+result);
-			    log.error("There was an error in PayPal card validation. Code = " + result);
+			                log.error("There was an error in PayPal card validation. Code = " + result+message);
 
                         }
                         shoppingCart.update();
+                        String knotId ="1";
+                        if(type.equals("A"))
+                        {
+                           WorkspaceItem workspaceItem = WorkspaceItem.findByItemId(context,item.getID());
+                           String actionUrl = contextPath+"/submit-checkout?workspaceID="+workspaceItem.getID();
+                            paypalService.generateUserForm(context,body,actionUrl,knotId,"A",request,item);
+                        }
+                        else
+                        {
+                           WorkflowItem workflowItem = WorkflowItem.findByItemId(context,item.getID());
+                           Collection collection = workflowItem.getCollection();
+                           String actionUrl = contextPath + "/handle/"+collection.getHandle() +"/workflow?workflowID="+workflowItem.getID()+ "&stepID=reAuthorizationPaymentStep&actionID=reAuthorizationPaymentAction";
+                           paypalService.generateUserForm(context,body,actionUrl,knotId,"S",request,item);
+                        }
                     }
                     else
                     {
                         //can't find the shopingcart for this secure token
                         addErrorLink(body,"can't find the shopingcart for this secure token:"+secureToken);
                     }
-
 
                 }catch (Exception e)
                 {
@@ -136,15 +145,14 @@ public class PaypalReturnStep extends AbstractStep {
             else
             {
                 //no secure token returned,reload the page to pay again or cotact admin
-                addErrorLink(body,"error response from paypal");
+                addErrorLink(body,"Couldn't find security token, Please go back to the submission page."+message);
             }
 
         }
-
-    private void addErrorLink(Body body,String message) throws WingException{
-        body.addDivision("error").addPara(message);
-        body.addDivision("show_button").addHidden("show_button").setValue("skip payment");
-
-    }
-
+        private void addErrorLink(Body body,String message)throws WingException
+        {
+            Division error = body.addDivision("error");
+            error.addPara(message);
+            error.addList("return").addItemXref("My Submissions","/submissions");
+        }
     }

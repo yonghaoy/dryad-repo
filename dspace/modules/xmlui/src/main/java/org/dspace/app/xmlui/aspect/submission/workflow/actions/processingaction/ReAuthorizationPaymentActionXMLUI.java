@@ -60,7 +60,7 @@ public class ReAuthorizationPaymentActionXMLUI extends AbstractXMLUIAction {
         String actionURL = contextPath + "/handle/"+collection.getHandle() + "/workflow_new";
         Division mainDiv = body.addInteractiveDivision("submit-completed-dataset", actionURL, Division.METHOD_POST, "primary submission");
         //generate form
-        paypalService.generateUserForm(context,mainDiv,actionURL,knot.getId(),"S",request,item,dso);
+        paypalService.generateUserForm(context,body,actionURL,knot.getId(),"S",request,item);
 
     }
 

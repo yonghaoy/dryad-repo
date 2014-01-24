@@ -2258,13 +2258,7 @@ input.starts_with {
     text-decoration: none;
 }
 
-.paypal-next-button{
-    display: none;
-}
 
-#aspect_submission_workflow_WorkflowTransformer_field_skip_payment{
-    display:none;
-}
 #aspect_paymentsystem_ShoppingCartTransformer_list_Payment h1{
     margin-top:0px;
 }

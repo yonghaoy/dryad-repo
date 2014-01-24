@@ -69,10 +69,6 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
 
         Request request = ObjectModelHelper.getRequest(objectModel);
 
-        String shoppingCartExist =  request.getParameter("shopping-cart-exist");
-
-        if(shoppingCartExist==null||!shoppingCartExist.equals("true")){
-
         Map<String,String> messages = new HashMap<String,String>();
 
         PaymentSystemConfigurationManager manager = new PaymentSystemConfigurationManager();
@@ -121,7 +117,8 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
                     //only when the select journal we will remove the country list
                     selectCountry = true;
                 }
-
+            if(shoppingCart.getJournal()!=null&&shoppingCart.getJournal().length()>0){
+             //   only when we have a journal  , show the shopping cart
             if(request.getRequestURI().contains("deposit-confirmed"))
             {
                 paymentSystemService.generateNoEditableShoppingCart(context,info,shoppingCart,manager,request.getContextPath(),selectCountry,messages);
@@ -130,7 +127,7 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
                 paymentSystemService.generateShoppingCart(context,info,shoppingCart,manager,request.getContextPath(),selectCountry,messages);
 
             }
-
+            }
 
             org.dspace.app.xmlui.wing.element.Item help = options.addList("need-help").addItem();
             help.addContent(T_CartHelp);
@@ -138,7 +135,6 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
         {
             log.error("Exception: ShoppingCart:", pe);
         }
-    }
     }
 
 }

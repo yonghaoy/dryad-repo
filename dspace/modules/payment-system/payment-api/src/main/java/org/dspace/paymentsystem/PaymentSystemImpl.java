@@ -179,7 +179,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
         else
         {
             //if no shopping cart , create a new one
-            return createNewShoppingCart(context,itemId,context.getCurrentUser().getID(),"",ShoppingCart.CURRENCY_US,ShoppingCart.STATUS_OPEN);
+            return createNewShoppingCart(context,itemId,context.getCurrentUser().getID(),null,ShoppingCart.CURRENCY_US,ShoppingCart.STATUS_OPEN);
         }
 
     }
@@ -361,7 +361,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
         PaymentSystemConfigurationManager manager = new PaymentSystemConfigurationManager();
         Properties countryArray = manager.getAllCountryProperty();
 
-        if(shoppingCart.getCountry() != null && shoppingCart.getCountry().length()>0)
+        if(shoppingCart.getCountry() != null && shoppingCart.getCountry().length()>0&&countryArray.get(shoppingCart.getCountry())!=null)
         {
             return countryArray.get(shoppingCart.getCountry()).equals(ShoppingCart.COUNTRYFREE);
         }
@@ -594,7 +594,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
             }
         }
 
-        if(shoppingCart.getCountry().length()>0)
+        if(shoppingCart.getCountry()!=null&&shoppingCart.getCountry().length()>0)
         {
             info.addItem("remove-country","remove-country").addXref("#","Remove Country : "+shoppingCart.getCountry());
         }

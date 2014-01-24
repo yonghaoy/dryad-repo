@@ -21,7 +21,6 @@ import org.dspace.app.xmlui.wing.Message;
 import org.dspace.app.xmlui.wing.WingException;
 import org.dspace.app.xmlui.wing.element.*;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.*;
 import org.dspace.content.Item;
 import org.dspace.core.*;
@@ -78,6 +77,7 @@ public class PaypalImpl implements PaypalService{
             get.addParameter("CREATESECURETOKEN","Y");
             get.addParameter("MODE",ConfigurationManager.getProperty("payment-system","paypal.mode"));
             get.addParameter("PARTNER",ConfigurationManager.getProperty("payment-system","paypal.partner"));
+            get.addParameter("SILENTTRAN",ConfigurationManager.getProperty("payment-system","paypal.slienttran"));
 
             get.addParameter("VENDOR",ConfigurationManager.getProperty("payment-system","paypal.vendor"));
             get.addParameter("USER",ConfigurationManager.getProperty("payment-system","paypal.user"));
@@ -88,12 +88,10 @@ public class PaypalImpl implements PaypalService{
             get.addParameter("TENDER", "C");
             get.addParameter("TRXTYPE", type);
             if(type.equals("S")){
-                //generate reauthorization form
                 get.addParameter("AMT", Double.toString(shoppingCart.getTotal()));
             }
             else
             {
-                //generate reference transaction form for a later charge
                 get.addParameter("AMT", "0.00");
             }
             //TODO:add currency from shopping cart
@@ -181,130 +179,6 @@ public class PaypalImpl implements PaypalService{
         return false;
     }
 
-    public boolean getReferenceTransaction(Context context,WorkflowItem workItem,HttpServletRequest request){
-        //return verifyCreditCard
-        verifyCreditCard(context,workItem.getItem(),request);
-        //todo:debug to be true
-        return true;
-    }
-    public boolean getReferenceTransaction(Context context,WorkspaceItem workItem,HttpServletRequest request){
-        //return verifyCreditCard
-        verifyCreditCard(context,workItem.getItem(),request);
-        //todo:debug to be true
-        return true;
-    }
-
-    //generate a reference transaction from paypal
-    public boolean verifyCreditCard(Context context,Item item, HttpServletRequest request){
-
-
-        ShoppingCart shoppingCart=null;
-
-        String referenceId=null;
-        String cardNumber = request.getParameter("CREDITCARD");
-        String CVV2 = request.getParameter("CVV2");
-        String expDate = request.getParameter("EXPDATE");
-        String firstName = request.getParameter("BILLTOFIRSTNAME");
-        String lastName = request.getParameter("BILLTOLASTNAME");
-        String street = request.getParameter("BILLTOSTREET");
-        String city = request.getParameter("BILLTOCITY");
-        String country = request.getParameter("BILLTOCOUNTRY");
-        String state = request.getParameter("BILLTOSTATE");
-        String zip = request.getParameter("BILLTOZIP");
-
-        String requestUrl = ConfigurationManager.getProperty("payment-system","paypal.link");
-        try {
-            String secureToken=request.getParameter("SECURETOKEN");
-            String secureTokenId=request.getParameter("SECURETOKENID");
-            PaymentSystemService paymentSystemService =  new DSpace().getSingletonService(PaymentSystemService.class);
-            shoppingCart= paymentSystemService.getShoppingCartByItemId(context,item.getID());
-
-
-            if(secureToken!=null&&secureTokenId!=null&&shoppingCart!=null){
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                javax.xml.parsers.DocumentBuilder db = dbf.newDocumentBuilder();
-                PostMethod get = new PostMethod(requestUrl);
-
-                get.addParameter("SECURETOKENID",secureTokenId);
-                get.addParameter("SECURETOKEN",secureToken);
-
-                get.addParameter("SILENTTRAN",ConfigurationManager.getProperty("payment-system","paypal.slienttran"));
-
-                get.addParameter("PARTNER",ConfigurationManager.getProperty("payment-system","paypal.partner"));
-                get.addParameter("VENDOR",ConfigurationManager.getProperty("payment-system","paypal.vendor"));
-                get.addParameter("USER",ConfigurationManager.getProperty("payment-system","paypal.user"));
-                get.addParameter("PWD", ConfigurationManager.getProperty("payment-system","paypal.pwd"));
-                //setup the reference transaction
-                get.addParameter("TENDER", "C");
-                get.addParameter("TRXTYPE", "A");
-                get.addParameter("VERBOSITY", ConfigurationManager.getProperty("payment-system","paypal.verbosity"));
-                get.addParameter("AMT", "0.00");
-                get.addParameter("CREDITCARD",cardNumber);
-                get.addParameter("CVV2",CVV2);
-                get.addParameter("EXPDATE",expDate);
-                get.addParameter("BILLTOFIRSTNAME",firstName);
-                get.addParameter("BILLTOLASTNAME",lastName);
-                get.addParameter("BILLTOSTREET",street);
-                get.addParameter("BILLTOSTATE",state);
-                get.addParameter("BILLTOCITY",city);
-                get.addParameter("BILLTOCOUNTRY",country);
-                get.addParameter("BILLTOZIP",zip);
-
-
-                //TODO:add currency from shopping cart
-                get.addParameter("CURRENCY", shoppingCart.getCurrency());
-		log.debug("paypal transaction url " + get);
-		int httpStatus = new HttpClient().executeMethod(get);
-                switch (httpStatus) {
-                    case 200:
-                    case 201:
-                    case 202:
-                        String string = get.getResponseBodyAsString();
-			log.debug("paypal response = " + string);
-                        String[] results = string.split("&");
-                        for(String temp:results)
-                        {
-                            String[] result = temp.split("=");
-                            //TODO: ignore the error from paypal server, add the error check after
-                            //figure out the correct way to process the credit card info
-//                        if(result[0].contains("RESULT")&&!result[1].equals("0"))
-//                        {
-                            //failed to pass the credit card authorization check
-//                            log.error("Failed to get a reference transaction from paypal:"+string);
-//                            log.error("Failed to get a reference transaction from paypal:"+get);
-//                            return false;
-//                        }
-                            //always return true so we can go through the workflow
-                            if(result[0].contains("PNREF"))
-                            {
-                                shoppingCart.setTransactionId(result[1]);
-                                shoppingCart.update();
-
-                                return true;
-                            }
-                        }
-                        break;
-                    default:
-                        log.error("unexpected code getting paypal reference transaction: " + httpStatus + ", " + get.getResponseBodyAsString() );
-                        return false;
-                }
-
-                get.releaseConnection();
-            }
-            else{
-                log.error("get paypal reference transaction error or shopping cart error:"+secureToken+secureTokenId+shoppingCart);
-                return false;
-            }
-        }
-        catch (Exception e) {
-            log.error("get paypal reference transaction:", e);
-            return false;
-        }
-        return false;
-    }
-
-
-
     @Override
     public boolean chargeCard(Context c, WorkflowItem wfi, HttpServletRequest request, ShoppingCart shoppingCart) {
         //this method should get the reference code and submit it to paypal to do the actural charge process
@@ -384,51 +258,11 @@ public class PaypalImpl implements PaypalService{
             get.releaseConnection();
         }
         catch (Exception e) {
-            log.error("error when submit paypal reference transaction: "+e.getMessage(), e);
+            log.error("error when submit paypal reference transaction: " + e.getMessage(), e);
             sendPaymentErrorEmail(c, wfi, null, "exception when submit reference transaction: " + e.getMessage());
             return false;
         }
         return false;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void generatePaypalForm(Division maindiv,ShoppingCart shoppingCart,String actionURL,String type,Context context) throws WingException,SQLException {
-
-        //return false if there is error in loading from paypal
-        String secureTokenId = getSecureTokenId();
-        String secureToken = generateSecureToken(shoppingCart,secureTokenId,Integer.toString(shoppingCart.getItem()),type);
-        WorkspaceItem workspaceItem=null;
-        if(secureToken==null){
-            EPerson ePerson = context.getCurrentUser();
-            try{
-                workspaceItem=WorkspaceItem.findByItemId(context,shoppingCart.getItem());
-            }
-            catch (Exception e)
-            {
-                log.error("couldn't find the item in the workspace, so block peopele other than admmin"+e);
-            }
-            if(workspaceItem!=null||AuthorizeManager.isAdmin(context,ePerson))
-            {
-                showSkipPaymentButton(maindiv,"Unfortunately, Dryad has encountered a problem communicating with our payment processor. Please continue, and we will contact you regarding payment. Error code: Secure-null");
-
-            }
-            else
-            {
-                //don't show the skip button if item is not in workspace steps and not admin users
-                showHelpPaymentButton(maindiv,"Unfortunately, Dryad has encountered a problem communicating with our payment processor. Please contact administrator regarding payment. Error code: Secure-null");
-
-            }
-            log.error("PayPal Secure Token is null");
-
-        }
-        else{
-            shoppingCart.setSecureToken(secureToken);
-            shoppingCart.update();
-            List list= maindiv.addDivision("paypal-iframe").addList("paypal-fields");
-            list.addItem("secureTokenId","").addContent(secureTokenId);
-            list.addItem("secureToken","").addContent(secureToken);
-            list.addItem("testMode","").addContent(ConfigurationManager.getProperty("payment-system","paypal.mode"));
-            list.addItem("link","").addContent(ConfigurationManager.getProperty("payment-system","paypal.link"));
-        }
     }
 
     public void generateVoucherForm(Division form,String voucherCode,String actionURL,String knotId) throws WingException{
@@ -443,61 +277,52 @@ public class PaypalImpl implements PaypalService{
     public void generateNoCostForm( Division actionsDiv,ShoppingCart shoppingCart, org.dspace.content.Item item,PaymentSystemConfigurationManager manager,PaymentSystemService paymentSystemService) throws WingException, SQLException {
         //Lastly add the finalize submission button
 
-        Division finDiv = actionsDiv.addDivision("finalizedivision");
 
         if(shoppingCart.getStatus().equals(ShoppingCart.STATUS_VERIFIED))
         {
-            finDiv.addPara("data-label", "bold").addContent("Your payment information has been verified.");
+            actionsDiv.addPara("data-label", "bold").addContent("Your payment information has been verified.");
         }
         if(shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED))
         {
-            finDiv.addPara("data-label", "bold").addContent("You have already paid for this submission.");
+            actionsDiv.addPara("data-label", "bold").addContent("Your card has been charged.");
         }
         else if(shoppingCart.getTotal()==0)
         {
-           finDiv.addPara("data-label", "bold").addContent("Your total due is 0.00.");
+           actionsDiv.addPara("data-label", "bold").addContent("Your total due is 0.00.");
         }
         else if(!shoppingCart.getCurrency().equals("USD"))
         {
-            finDiv.addPara("data-label", "bold").addContent("Dryad's payment processing system currently only supports transactions in US dollars. We expect to enable transactions in other currencies within a few days. If you wish to complete your transaction in US dollars, please change the currency setting above. Otherwise, please complete your submission without entering payment information. We will contact you for payment details before your data is published.");
+            actionsDiv.addPara("data-label", "bold").addContent("Dryad's payment processing system currently only supports transactions in US dollars. We expect to enable transactions in other currencies within a few days. If you wish to complete your transaction in US dollars, please change the currency setting above. Otherwise, please complete your submission without entering payment information. We will contact you for payment details before your data is published.");
         }
         else
         {
-            finDiv.addPara("data-label", "bold").addContent("You are not being charged");
+            actionsDiv.addPara("data-label", "bold").addContent("You are not being charged until your submission has been approved by curator.");
         }
-
-
-        finDiv.addHidden("show_button").setValue("Finalize and submit data for curation");
     }
 
-    public void showSkipPaymentButton(Division mainDiv,String message)throws WingException{
-        Division error = mainDiv.addDivision("error");
-        error.addPara(message);
-        error.addHidden("show_button").setValue("Skip payment and submit");
-    }
 
-    public void showHelpPaymentButton(Division mainDiv,String message)throws WingException{
-        Division error = mainDiv.addDivision("error");
-        error.addPara(message);
-        //error.addHidden("show_button").setValue("Skip payment and submit");
-    }
-
-    public void addButtons(Division mainDiv)throws WingException{
+    public void addButtons(Division mainDiv, boolean showSkipButton) throws WingException {
         List buttons = mainDiv.addList("paypal-form-buttons");
-        Button skipButton = buttons.addItem().addButton("skip_payment");
-        skipButton.setValue("Submit");
+        if(showSkipButton)  {
+            Button skipButton = buttons.addItem().addButton("skip_payment");
+            skipButton.setValue("Finalize submission");
+        }
         Button cancleButton = buttons.addItem().addButton(AbstractProcessingStep.CANCEL_BUTTON);
         cancleButton.setValue("Cancel");
 
     }
 
     //this methord should genearte a secure token from paypal and then generate a user crsedit card form
-    public void generateUserForm(Context context,Division mainDiv,String actionURL,String knotId,String type,Request request, Item item, DSpaceObject dso) throws WingException, SQLException{
+    public void generateUserForm(Context context,Body body,String actionURL,String knotId,String type,Request request, Item item) throws WingException, SQLException{
         PaymentSystemConfigurationManager manager = new PaymentSystemConfigurationManager();
         PaymentSystemService payementSystemService = new DSpace().getSingletonService(PaymentSystemService.class);
         PaypalService paypalService = new DSpace().getSingletonService(PaypalService.class);
+
+        Division mainDiv = body.addInteractiveDivision("submit-completed-dataset", actionURL, Division.METHOD_POST, "primary submission");
         //mainDiv.setHead("Checkout");
         String errorMessage = request.getParameter("encountError");
+        String paypalError = request.getParameter("RESPMSG");
+        boolean showSkipButton=false;
         try{
             //create new transaction or update transaction id with item
             String previous_email = request.getParameter("login_email");
@@ -536,44 +361,145 @@ public class PaypalImpl implements PaypalService{
 
             if(shoppingCart.getTotal()==0||shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED)||!shoppingCart.getCurrency().equals("USD"))
             {
-                paypalService.generateNoCostForm(mainDiv, shoppingCart,item, manager, payementSystemService);
+                //already paid, no need to pay again
+                showSkipButton=true;
+                generateNoCostForm(mainDiv, shoppingCart,item, manager, payementSystemService);
+            }
+            else if(shoppingCart.getStatus().equals(ShoppingCart.STATUS_VERIFIED)&&type.equals("A"))
+            {
+                //already verified, no need to do it again
+                showSkipButton=true;
+                generateNoCostForm(mainDiv, shoppingCart,item, manager, payementSystemService);
             }
             else
             {
 
-                Division voucher = mainDiv.addDivision("voucher");
+
                 if(errorMessage!=null&&errorMessage.length()>0) {
-                    voucher.addPara("voucher-error","voucher-error").addHighlight("bold").addContent(errorMessage);
+                    mainDiv.addPara("voucher-error","voucher-error").addHighlight("bold").addContent(errorMessage);
 
                 }
 
                 Voucher voucher1 = Voucher.findById(context,shoppingCart.getVoucher());
                 if(voucher1!=null){
-                    paypalService.generateVoucherForm(voucher,voucher1.getCode(),actionURL,knotId);
+                    generateVoucherForm(mainDiv,voucher1.getCode(),actionURL,knotId);
                 }
                 else if(voucherCode!=null&&voucherCode.length()>0){
-                    paypalService.generateVoucherForm(voucher,voucherCode,actionURL,knotId);
+                    generateVoucherForm(mainDiv,voucherCode,actionURL,knotId);
                 }
                 else{
-                    paypalService.generateVoucherForm(voucher,null,actionURL,knotId);
+                    generateVoucherForm(mainDiv,null,actionURL,knotId);
                 }
-                Division creditcard = mainDiv.addDivision("creditcard");
-                paypalService.generatePaypalForm(creditcard,shoppingCart,actionURL,type,context);
+                if(paypalError!=null&&paypalError.length()>0)
+                {
+                    body.addDivision("error").addPara(paypalError);
+                }
+                generateUserCreditCardForm(body,shoppingCart,actionURL,knotId,type);
 
             }
-
             }
+
         }catch (Exception e)
         {
             //TODO: handle the exceptions
-            paypalService.showSkipPaymentButton(mainDiv,"errors in generate the payment form:"+e.getMessage());
+            if(type.equals("A")){
+                showSkipButton=true;
+                mainDiv.addPara("Errors in generate chechout form, please contact system administrator or skip the payment right now and continue to submit the item to curator.");
+            }
+            else
+            {
+                showSkipButton=false;
+                mainDiv.addPara("Errors in generate chechout form, please contact system administrator.");
+            }
+
             log.error("Exception when entering the checkout step:", e);
         }
 
 
         mainDiv.addHidden("submission-continue").setValue(knotId);
         mainDiv.addPara().addContent("NOTE : Proceed only if your submission is finalized. After submitting, a Dryad curator will review your submission. After this review, your data will be archived in Dryad, and your payment will be processed.");
-        paypalService.addButtons(mainDiv);
+        addButtons(mainDiv,showSkipButton);
+
+    }
+
+
+    //this methord should genearte a secure token from paypal and then generate a user credit card form
+    public void generateUserCreditCardForm(Body body,ShoppingCart shoppingCart,String actionURL,String knotId,String type) throws WingException, SQLException{
+
+        //generate the secure token from paypal
+
+        String secureToken = null;
+        String secureTokenId = getSecureTokenId();
+        secureToken = generateSecureToken(shoppingCart, secureTokenId,Integer.toString(shoppingCart.getItem()),type);
+
+        if(secureToken!=null){
+            shoppingCart.setSecureToken(secureToken);
+            shoppingCart.update();
+            Division form = body.addInteractiveDivision("paymentForm", ConfigurationManager.getProperty("payment-system","paypal.form.link"), Division.METHOD_POST,"creditcard");
+            form.addPara("Payflow transparent credit card processing - basic demo");
+
+            List formBody = form.addList("paypal-form", List.TYPE_FORM, "paypal");
+            org.dspace.app.xmlui.wing.element.Item paypalInfo = formBody.addItem("paypalInfo","paypalInfo");
+            paypalInfo.addHidden("SECURETOKENID").setValue(secureTokenId);
+            paypalInfo.addHidden("SECURETOKEN").setValue(secureToken);
+
+
+            paypalInfo.addHidden("VERBOSITY").setValue("HIGH");
+            paypalInfo.addHidden("MODE").setValue(ConfigurationManager.getProperty("payment-system", "paypal.mode"));
+            paypalInfo.addHidden("TENDER").setValue("C");
+            //change the type to be charge imediatly instead of a reference payment
+            paypalInfo.addHidden("TRXTYPE").setValue(type);
+
+            String currencyString = shoppingCart.getCurrency();
+            paypalInfo.addHidden("CURRENCY").setValue(currencyString);
+            formBody.addLabel("Currency:"+currencyString);
+            if(type.equals("A"))
+                paypalInfo.addHidden("AMT").setValue("0.0");
+            else
+            paypalInfo.addHidden("AMT").setValue(Double.toString(shoppingCart.getTotal()));
+            formBody.addLabel("Total Amount");
+            formBody.addItem().addContent(Double.toString(shoppingCart.getTotal()));
+            formBody.addLabel("Credit Card Info");
+            formBody.addLabel("Credit Card Number");
+            formBody.addItem().addText("ACCT").setValue("");
+            formBody.addLabel("Experiation Date");
+            formBody.addItem().addText("EXPDATE").setValue("");
+            formBody.addLabel("CVV2 Number");
+            formBody.addItem().addText("CVV2").setValue("");
+            formBody.addLabel("Billing First Name");
+            formBody.addItem().addText("BILLTOFIRSTNAME").setValue("");
+            formBody.addLabel("Billing Last Name");
+            formBody.addItem().addText("BILLTOLASTNAME").setValue("");
+            formBody.addLabel("Billing Address");
+            formBody.addItem().addText("BILLTOSTREET").setValue("");
+            formBody.addLabel("Billing City");
+            formBody.addItem().addText("BILLTOCITY").setValue("");
+            formBody.addLabel("Billing State");
+            formBody.addItem().addText("BILLTOSTATE").setValue("");
+            formBody.addLabel("Billing Zip");
+            formBody.addItem().addText("BILLTOZIP").setValue("");
+            formBody.addLabel("Billing Country");
+            formBody.addItem().addText("BILLTOCOUNTRY").setValue("");
+            formBody.addLabel("Comment");
+            formBody.addItem().addText("COMMENT1").setValue(knotId);
+            //add this id to make sure the workflow resume
+            formBody.addItem().addHidden("submission-continue").setValue(knotId);
+
+            formBody.addItem().addContent("NOTE : Proceed only if your submission is finalized. After submitting, a Dryad curator will review your submission. After this review, your data will be archived in Dryad, and your payment will be processed.");
+            Button finishButton = formBody.addItem().addButton(AbstractProcessingStep.NEXT_BUTTON);
+            finishButton.setValue("Pay");
+
+        }
+        else
+        {
+            Division form = body.addDivision("form").addInteractiveDivision("paymentForm", actionURL, Division.METHOD_POST);
+            form.addPara("Payflow transparent credit card processing - error");
+
+            List formBody = form.addList("paypal-form", List.TYPE_FORM, "paypal");
+            formBody.addItem().addContent("NOTE : Proceed only if your submission is finalized. After submitting, a Dryad curator will review your submission. After this review, your data will be archived in Dryad, and your payment will be processed.");
+
+        }
+
 
     }
 

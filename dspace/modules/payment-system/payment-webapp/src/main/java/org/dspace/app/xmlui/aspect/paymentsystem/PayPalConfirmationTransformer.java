@@ -110,7 +110,7 @@ public class PayPalConfirmationTransformer extends AbstractDSpaceTransformer{
 
 
         formBody.addLabel("customer info");
-        formBody.addItem().addText("CREDITCARD").setValue("5105105105105100");
+        formBody.addItem().addText("ACCT").setValue("5105105105105100");
         formBody.addItem().addText("EXPDATE").setValue("1214");
         formBody.addItem().addText("CVV2").setValue("123");
         formBody.addItem().addText("BILLTOFIRSTNAME").setValue("John");

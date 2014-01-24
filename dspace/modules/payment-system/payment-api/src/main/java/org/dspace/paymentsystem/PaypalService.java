@@ -43,21 +43,16 @@ public interface PaypalService
 
     public boolean submitReferenceTransaction(Context c, WorkflowItem wfi, HttpServletRequest request);
 
-    public boolean getReferenceTransaction(Context context, WorkflowItem workItem, HttpServletRequest request);
-
-    public boolean verifyCreditCard(Context context, Item item, HttpServletRequest request);
-
-    public void generateUserForm(Context context, Division mainDiv, String actionURL, String knotId, String type, Request request, Item item, DSpaceObject dso) throws WingException, SQLException;
+    public void generateUserForm(Context context, Body body, String actionURL, String knotId, String type, Request request, Item item) throws WingException, SQLException;
 
     public boolean chargeCard(Context c, WorkflowItem wfi, HttpServletRequest request, ShoppingCart shoppingCart);
-
-    public void generatePaypalForm(Division mandiv, ShoppingCart shoppingCart, String actionURL, String type,Context context) throws WingException, SQLException;
 
     public void generateVoucherForm(Division form, String voucherCode, String actionURL, String knotId) throws WingException;
 
     public void generateNoCostForm(Division actionsDiv, ShoppingCart transaction, org.dspace.content.Item item, PaymentSystemConfigurationManager manager, PaymentSystemService paymentSystemService) throws WingException, SQLException;
 
-    public void showSkipPaymentButton(Division mainDiv, String message) throws WingException;
+    public void addButtons(Division mainDiv, boolean showSkipButton) throws WingException;
 
-    public void addButtons(Division mainDiv) throws WingException;
+    //this methord should genearte a secure token from paypal and then generate a user credit card form
+    public void generateUserCreditCardForm(Body body,ShoppingCart shoppingCart,String actionURL,String knotId,String type) throws WingException, SQLException;
 }
