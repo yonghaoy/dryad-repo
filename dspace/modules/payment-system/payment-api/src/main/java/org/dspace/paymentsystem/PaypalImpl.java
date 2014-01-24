@@ -87,10 +87,12 @@ public class PaypalImpl implements PaypalService{
             get.addParameter("TENDER", "C");
             get.addParameter("TRXTYPE", type);
             if(type.equals("S")){
+                //generate reauthorization form
                 get.addParameter("AMT", Double.toString(shoppingCart.getTotal()));
             }
             else
             {
+                //generate reference transaction form for a later charge
                 get.addParameter("AMT", "0.00");
             }
             //TODO:add currency from shopping cart
@@ -139,6 +141,10 @@ public class PaypalImpl implements PaypalService{
         try{
             PaymentSystemService paymentSystemService = new DSpace().getSingletonService(PaymentSystemService.class);
             ShoppingCart shoppingCart = paymentSystemService.getShoppingCartByItemId(c,wfi.getItem().getID());
+            if(shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED)){
+                //this shopping cart has already been charged
+                return true;
+            }
             Voucher voucher = Voucher.findById(c,shoppingCart.getVoucher());
 
 	    // check whether we're using the special voucher that simulates "payment failed"
@@ -306,6 +312,13 @@ public class PaypalImpl implements PaypalService{
             log.debug("transaction id absent, cannot change card");
             return false;
         }
+        if(shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED))
+        {
+
+            //all ready changed
+            return true;
+        }
+
         String requestUrl = ConfigurationManager.getProperty("payment-system","paypal.payflow.link");
         try {
 
@@ -437,7 +450,7 @@ public class PaypalImpl implements PaypalService{
         }
         if(shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED))
         {
-            finDiv.addPara("data-label", "bold").addContent("Your card has been charged.");
+            finDiv.addPara("data-label", "bold").addContent("You have already paid for this submission.");
         }
         else if(shoppingCart.getTotal()==0)
         {
@@ -490,8 +503,36 @@ public class PaypalImpl implements PaypalService{
             String previous_email = request.getParameter("login_email");
             EPerson eperson = EPerson.findByEmail(context,previous_email);
             ShoppingCart shoppingCart = payementSystemService.getShoppingCartByItemId(context,item.getID());
-            List info = mainDiv.addList("Payment",List.TYPE_FORM,"paymentsystem");
-            payementSystemService.generateShoppingCart(context,info,shoppingCart,manager,"",true,messages);
+            if(shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED))
+            {
+                  //shopping cart already paid, not need to generate a form
+                paypalService.generateNoCostForm(mainDiv, shoppingCart,item, manager, payementSystemService);
+            }
+            else{
+
+            VoucherValidationService voucherValidationService = new DSpace().getSingletonService(VoucherValidationService.class);
+            String voucherCode = "";
+            if(request.getParameter("submit-voucher")!=null)
+            {    //user is using the voucher code
+                voucherCode = request.getParameter("voucher");
+                if(voucherCode!=null&&voucherCode.length()>0){
+                    if(!voucherValidationService.voucherUsed(context,voucherCode)) {
+                        Voucher voucher = Voucher.findByCode(context,voucherCode);
+                        shoppingCart.setVoucher(voucher.getID());
+                        payementSystemService.updateTotal(context,shoppingCart,null);
+                    }
+                    else
+                    {
+                        errorMessage = "The voucher code is not valid:can't find the voucher code or the voucher code has been used";
+                    }
+                }
+                else
+                {
+                    shoppingCart.setVoucher(null);
+                    payementSystemService.updateTotal(context,shoppingCart,null);
+                }
+
+            }
 
             if(shoppingCart.getTotal()==0||shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED)||!shoppingCart.getCurrency().equals("USD"))
             {
@@ -518,7 +559,7 @@ public class PaypalImpl implements PaypalService{
 
             }
 
-
+            }
         }catch (Exception e)
         {
             //TODO: handle the exceptions
