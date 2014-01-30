@@ -40,6 +40,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Random;
 
 import org.dspace.app.xmlui.wing.Message;
@@ -317,24 +318,18 @@ public class PaypalImpl implements PaypalService{
         PaymentSystemConfigurationManager manager = new PaymentSystemConfigurationManager();
         PaymentSystemService payementSystemService = new DSpace().getSingletonService(PaymentSystemService.class);
         PaypalService paypalService = new DSpace().getSingletonService(PaypalService.class);
-
+        Map<String,String> messages = null;
         Division mainDiv = body.addInteractiveDivision("submit-completed-dataset", actionURL, Division.METHOD_POST, "primary submission");
-        //mainDiv.setHead("Checkout");
-        String errorMessage = request.getParameter("encountError");
+        String ecountError = request.getParameter("ecountError");
+        String voucherError = request.getParameter("voucherError");
+        String countryError = request.getParameter("countryError");
+        String currencyError = request.getParameter("currencyError");
         String paypalError = request.getParameter("RESPMSG");
         boolean showSkipButton=false;
         try{
-            //create new transaction or update transaction id with item
-            String previous_email = request.getParameter("login_email");
-            EPerson eperson = EPerson.findByEmail(context,previous_email);
             ShoppingCart shoppingCart = payementSystemService.getShoppingCartByItemId(context,item.getID());
-            if(shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED))
-            {
-                  //shopping cart already paid, not need to generate a form
-                paypalService.generateNoCostForm(mainDiv, shoppingCart,item, manager, payementSystemService);
-            }
-            else{
 
+            //check all the changes to shopping cart
             VoucherValidationService voucherValidationService = new DSpace().getSingletonService(VoucherValidationService.class);
             String voucherCode = "";
             if(request.getParameter("submit-voucher")!=null)
@@ -344,20 +339,43 @@ public class PaypalImpl implements PaypalService{
                     if(!voucherValidationService.voucherUsed(context,voucherCode)) {
                         Voucher voucher = Voucher.findByCode(context,voucherCode);
                         shoppingCart.setVoucher(voucher.getID());
-                        payementSystemService.updateTotal(context,shoppingCart,null);
                     }
                     else
                     {
-                        errorMessage = "The voucher code is not valid:can't find the voucher code or the voucher code has been used";
+                        voucherError = "The voucher code is not valid:can't find the voucher code or the voucher code has been used";
                     }
                 }
                 else
                 {
                     shoppingCart.setVoucher(null);
-                    payementSystemService.updateTotal(context,shoppingCart,null);
+
                 }
 
             }
+            if(request.getParameter("country")!=null)
+            {    //user is using the voucher code
+
+                String newCountry = request.getParameter("country");
+                shoppingCart.setCountry(newCountry);
+
+            }
+            if(request.getParameter("currency")!=null)
+            {    //user is using the voucher code
+                String newCurrency = request.getParameter("currency");
+
+                shoppingCart.setCurrency(newCurrency);
+            }
+            if(voucherError!=null)
+            messages.put("voucher",voucherError);
+            if(countryError!=null)
+            messages.put("countryError",countryError);
+            if(currencyError!=null)
+            messages.put("currencyError",currencyError);
+            payementSystemService.updateTotal(context,shoppingCart,null);
+            //generate the shopping cart and insert it into main page , disable the shopping cart in option section
+            List shoppingCartlist = mainDiv.addList("shopping-cart");
+            shoppingCartlist.addItem().addHidden("hideShoppingCart");
+            payementSystemService.generateShoppingCart(context,shoppingCartlist, shoppingCart, manager, "", messages);
 
             if(shoppingCart.getTotal()==0||shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED)||!shoppingCart.getCurrency().equals("USD"))
             {
@@ -375,29 +393,29 @@ public class PaypalImpl implements PaypalService{
             {
 
 
-                if(errorMessage!=null&&errorMessage.length()>0) {
-                    mainDiv.addPara("voucher-error","voucher-error").addHighlight("bold").addContent(errorMessage);
+//                if(errorMessage!=null&&errorMessage.length()>0) {
+//                    mainDiv.addPara("voucher-error","voucher-error").addHighlight("bold").addContent(errorMessage);
+//
+//                }
 
-                }
-
-                Voucher voucher1 = Voucher.findById(context,shoppingCart.getVoucher());
-                if(voucher1!=null){
-                    generateVoucherForm(mainDiv,voucher1.getCode(),actionURL,knotId);
-                }
-                else if(voucherCode!=null&&voucherCode.length()>0){
-                    generateVoucherForm(mainDiv,voucherCode,actionURL,knotId);
-                }
-                else{
-                    generateVoucherForm(mainDiv,null,actionURL,knotId);
-                }
+//                Voucher voucher1 = Voucher.findById(context,shoppingCart.getVoucher());
+//                if(voucher1!=null){
+//                    generateVoucherForm(mainDiv,voucher1.getCode(),actionURL,knotId);
+//                }
+//                else if(voucherCode!=null&&voucherCode.length()>0){
+//                    generateVoucherForm(mainDiv,voucherCode,actionURL,knotId);
+//                }
+//                else{
+//                    generateVoucherForm(mainDiv,null,actionURL,knotId);
+//                }
                 if(paypalError!=null&&paypalError.length()>0)
                 {
                     body.addDivision("error").addPara(paypalError);
                 }
-                generateUserCreditCardForm(body,shoppingCart,actionURL,knotId,type);
+                generateUserCreditCardForm(context,body,shoppingCart,actionURL,knotId,type);
 
             }
-            }
+
 
         }catch (Exception e)
         {
@@ -424,7 +442,7 @@ public class PaypalImpl implements PaypalService{
 
 
     //this methord should genearte a secure token from paypal and then generate a user credit card form
-    public void generateUserCreditCardForm(Body body,ShoppingCart shoppingCart,String actionURL,String knotId,String type) throws WingException, SQLException{
+    public void generateUserCreditCardForm(Context context,Body body,ShoppingCart shoppingCart,String actionURL,String knotId,String type) throws WingException, SQLException{
 
         //generate the secure token from paypal
 
@@ -470,8 +488,10 @@ public class PaypalImpl implements PaypalService{
             formBody.addItem().addText("BILLTOFIRSTNAME").setValue("");
             formBody.addLabel("Billing Last Name");
             formBody.addItem().addText("BILLTOLASTNAME").setValue("");
-            formBody.addLabel("Billing Address");
+            formBody.addLabel("Billing Address line 1");
             formBody.addItem().addText("BILLTOSTREET").setValue("");
+            formBody.addLabel("Billing Address line 2 (optional)");
+            formBody.addItem().addText("BILLTOSTREET2").setValue("");
             formBody.addLabel("Billing City");
             formBody.addItem().addText("BILLTOCITY").setValue("");
             formBody.addLabel("Billing State");
@@ -480,6 +500,16 @@ public class PaypalImpl implements PaypalService{
             formBody.addItem().addText("BILLTOZIP").setValue("");
             formBody.addLabel("Billing Country");
             formBody.addItem().addText("BILLTOCOUNTRY").setValue("");
+
+            EPerson ePerson = EPerson.find(context, shoppingCart.getDepositor());
+            String email="";
+            if(ePerson!=null){
+                email = ePerson.getEmail();
+            }else
+            {
+                email = "";
+            }
+            formBody.addItem().addText("BILLTOEMAIL").setValue(email);
             formBody.addLabel("Comment");
             formBody.addItem().addText("COMMENT1").setValue(knotId);
             //add this id to make sure the workflow resume

@@ -54,5 +54,5 @@ public interface PaypalService
     public void addButtons(Division mainDiv, boolean showSkipButton) throws WingException;
 
     //this methord should genearte a secure token from paypal and then generate a user credit card form
-    public void generateUserCreditCardForm(Body body,ShoppingCart shoppingCart,String actionURL,String knotId,String type) throws WingException, SQLException;
+    public void generateUserCreditCardForm(Context context,Body body,ShoppingCart shoppingCart,String actionURL,String knotId,String type) throws WingException, SQLException;
 }

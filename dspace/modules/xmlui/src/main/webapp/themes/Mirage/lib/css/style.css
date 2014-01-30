@@ -2485,3 +2485,20 @@ ul#aspect_submission_submit_CheckoutStep_list_transaction{
     color:grey;
     font-size: 0.5em;
 }
+
+/*checkout page*/
+.paypal ol li span.ds-form-label,.paypal ol li label{
+    font-size: 0.5em !important;
+    display: inline;
+    width:100px;
+}
+.paypal ol li div{
+    font-size: 0.5em !important;
+    display: inline;
+    float: left;
+    width:400px;
+
+}
+#aspect_submission_submit_CheckoutStep_field_ACCT,#aspect_submission_submit_CheckoutStep_field_BILLTOSTREET{
+    width:200px;
+}

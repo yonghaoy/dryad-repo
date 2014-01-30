@@ -1174,7 +1174,7 @@ parameter that is being used (see variable defined above) -->
     </xsl:template>
 
     <!--payment-->
-    <xsl:template match="//dri:field[@id='aspect.paymentsystem.ShoppingCartTransformer.field.currency' or @id='aspect.paymentsystem.ShoppingCartTransformer.field.country' or @id ='aspect.submission.StepTransformer.field.country']">
+    <xsl:template match="//dri:field[@id='aspect.paymentsystem.ShoppingCartTransformer.field.currency' or @id='aspect.paymentsystem.ShoppingCartTransformer.field.country' ]">
     <select onchange="javascript:updateOrder()">
             <xsl:attribute name="name">
                 <xsl:value-of select="@n"/>
@@ -1182,6 +1182,16 @@ parameter that is being used (see variable defined above) -->
             <xsl:apply-templates select="*"/>
         </select>
     </xsl:template>
+    <xsl:template match="//dri:field[@id ='aspect.submission.submit.CheckoutStep.field.country' or @id ='aspect.submission.submit.CheckoutStep.field.currency' or @id ='aspect.submission.workflow.WorkflowTransformer.field.country' or @id ='aspect.submission.workflow.WorkflowTransformer.field.currency']">
+    <select onchange="this.form.submit()">
+            <xsl:attribute name="name">
+                <xsl:value-of select="@n"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="*"/>
+        </select>
+    </xsl:template>
+
+
 
     <xsl:template match="//dri:field[@id='aspect.paymentsystem.ShoppingCartTransformer.field.apply']">
         <button onclick="javascript:updateOrder()" class="ds-button-field">
@@ -1266,6 +1276,17 @@ parameter that is being used (see variable defined above) -->
             <xsl:value-of select="."/>&#160;
         </a>
     </xsl:template>
+    <!-- remove voucher link main form-->
+    <xsl:template match="//dri:item[@id='aspect.submission.submit.CheckoutStep.item.remove-voucher' or @id='aspect.submission.workflow.WorkflowTransformer.item.remove-country' or @id='aspect.submission.submit.CheckoutStep.item.remove-country' or @id='aspect.submission.workflow.WorkflowTransformer.item.remove-voucher' or @id='aspect.submission.submit.CheckoutStep.item.currency' or @id='aspect.submission.workflow.WorkflowTransformer.item.currency']/dri:xref">
+        <a id="remove-voucher" href="#">
+            <xsl:attribute name="onclick">
+                <xsl:text>javascript:removeChangeShoppingCart(</xsl:text>
+                <xsl:value-of select="@n"/>
+                <xsl:text>)</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="."/>&#160;
+        </a>
+    </xsl:template>
 
 
 
@@ -1273,7 +1294,9 @@ parameter that is being used (see variable defined above) -->
     <xsl:template match="//dri:item[@id='aspect.paymentsystem.ShoppingCartTransformer.item.remove-country']/dri:xref">
         <a id="remove-country" href="#">
             <xsl:attribute name="onclick">
-                <xsl:text>javascript:removeCountry()</xsl:text>
+                <xsl:text>javascript:removeCountry(</xsl:text>
+                <xsl:value-of select="@n"/>
+                <xsl:text>)</xsl:text>
             </xsl:attribute>
             <xsl:value-of select="."/>&#160;
         </a>

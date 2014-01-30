@@ -72,8 +72,6 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
         Map<String,String> messages = new HashMap<String,String>();
 
         PaymentSystemConfigurationManager manager = new PaymentSystemConfigurationManager();
-        Enumeration s = request.getParameterNames();
-        Enumeration v = request.getAttributeNames();
         SubmissionInfo submissionInfo=(SubmissionInfo)request.getAttribute("dspace.submission.info");
 
         Item item = null;
@@ -82,10 +80,10 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
             {
                 //it is in workflow
                 String workflowId = request.getParameter("workflowID");
-		if(workflowId==null) {
-		    // item is no longer in submission OR workflow, probably archived, so we don't need shopping cart info
-		    return;
-		}
+                if(workflowId==null) {
+                    // item is no longer in submission OR workflow, probably archived, so we don't need shopping cart info
+                    return;
+                }
                 WorkflowItem workflowItem = WorkflowItem.find(context,Integer.parseInt(workflowId));
                 item = workflowItem.getItem();
             }
@@ -94,43 +92,44 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
                 item = submissionInfo.getSubmissionItem().getItem();
             }
 
-            //DryadJournalSubmissionUtils.journalProperties.get("");
             PaymentSystemService paymentSystemService = new DSpace().getSingletonService(PaymentSystemService.class);
             ShoppingCart shoppingCart = null;
             //create new transaction or update transaction id with item
             shoppingCart = paymentSystemService.getShoppingCartByItemId(context,item.getID());
             paymentSystemService.updateTotal(context,shoppingCart,null);
 
+            //todo:find a better way to detect the step we are in
+            boolean showShoppingCart = true;
+            if(shoppingCart.getJournal()==null||shoppingCart.getJournal().length()==0)
+            {
+                showShoppingCart=false;
+            }
+            if(request.getParameter("stepID")!=null&&request.getParameter("stepID").equals("reAuthorizationPaymentStep"))
+            {
+                showShoppingCart=false;
+            }
+            if(request.getParameter("hideShoppingCart")!=null)
+            {
+                showShoppingCart=false;
+            }
+
+            if(showShoppingCart){
             //add the order summary form (wrapped in div.ds-option-set for proper sidebar style)
             List info = options.addList("Payment",List.TYPE_FORM,"paymentsystem");
-
-            //todo:find a better way to detect the step we are in
-
-            boolean selectCountry=false;
-            Item dataPackage = DryadWorkflowUtils.getDataPackage(context,item);
-            if(dataPackage==null){
-                dataPackage=item;
-            }
-            DCValue[] value = dataPackage.getMetadata("prism.publicationName");
-            if(value!=null&&value.length>0)
-                {
-                    //only when the select journal we will remove the country list
-                    selectCountry = true;
-                }
-            if(shoppingCart.getJournal()!=null&&shoppingCart.getJournal().length()>0){
              //   only when we have a journal  , show the shopping cart
             if(request.getRequestURI().contains("deposit-confirmed"))
             {
-                paymentSystemService.generateNoEditableShoppingCart(context,info,shoppingCart,manager,request.getContextPath(),selectCountry,messages);
+                paymentSystemService.generateNoEditableShoppingCart(context,info,shoppingCart,manager,request.getContextPath(),messages);
             }
             else {
-                paymentSystemService.generateShoppingCart(context,info,shoppingCart,manager,request.getContextPath(),selectCountry,messages);
+                paymentSystemService.generateShoppingCart(context,info,shoppingCart,manager,request.getContextPath(),messages);
 
             }
-            }
+
 
             org.dspace.app.xmlui.wing.element.Item help = options.addList("need-help").addItem();
             help.addContent(T_CartHelp);
+            }
         }catch (Exception pe)
         {
             log.error("Exception: ShoppingCart:", pe);

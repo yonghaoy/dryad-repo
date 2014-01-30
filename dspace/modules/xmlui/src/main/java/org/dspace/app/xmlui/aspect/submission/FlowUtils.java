@@ -891,7 +891,15 @@ public class FlowUtils {
     }
 
 
-
+//    public static String processChangeShoppingCart(Context context, Request request, HttpServletResponse response, String workItemID) throws SQLException, AuthorizeException, IOException, ServletException, TransformerException, WorkflowException, SAXException, WorkflowConfigurationException, MessagingException, ParserConfigurationException {
+//        InProgressSubmission workItem;
+//        workItem = WorkflowItem.find(context, Integer.parseInt(workItemID.substring(1, workItemID.length())));
+//        String url = null;
+//        url=request.getContextPath() + request;
+//
+//        //Return null, since no redir is required
+//        return url;
+//    }
 
     private static void finishSubmission(Request request, Context context, Item publication) throws SQLException, AuthorizeException, IOException, TransformerException, WorkflowException, SAXException, WorkflowConfigurationException, MessagingException, ParserConfigurationException {
 

@@ -9,6 +9,8 @@ package org.dspace.paymentsystem;
 
 import org.apache.cocoon.environment.Request;
 import org.dspace.app.xmlui.wing.WingException;
+import org.dspace.app.xmlui.wing.element.Division;
+import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
@@ -62,7 +64,7 @@ public interface PaymentSystemService
 
     public String printShoppingCart(Context c, ShoppingCart shoppingCart);
 
-    public void generateShoppingCart(Context context,org.dspace.app.xmlui.wing.element.List info,ShoppingCart transaction,PaymentSystemConfigurationManager manager,String baseUrl,boolean selectCountry,Map<String,String> messages) throws WingException,SQLException;
-    public void generateNoEditableShoppingCart(Context context,org.dspace.app.xmlui.wing.element.List info,ShoppingCart transaction,PaymentSystemConfigurationManager manager,String baseUrl,boolean selectCountry,Map<String,String> messages) throws WingException,SQLException;
+    public void generateShoppingCart(Context context,org.dspace.app.xmlui.wing.element.List info,ShoppingCart transaction,PaymentSystemConfigurationManager manager,String baseUrl,Map<String,String> messages) throws WingException,SQLException;
+    public void generateNoEditableShoppingCart(Context context,org.dspace.app.xmlui.wing.element.List info,ShoppingCart transaction,PaymentSystemConfigurationManager manager,String baseUrl,Map<String,String> messages) throws WingException,SQLException;
 
 }

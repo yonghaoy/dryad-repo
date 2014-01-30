@@ -976,6 +976,14 @@ function doWorkflow()
         {
             cocoon.redirectTo(contextPath+"/handle/"+handle+"/workflow_new?workflowID="+workflowItemId+"&stepID=reAuthorizationPaymentStep&actionID=reAuthorizationPaymentAction&submit-voucher=true&voucher="+cocoon.request.get("voucher"),true);
         }
+        else if (cocoon.request.get("change-country"))
+        {
+            cocoon.redirectTo(contextPath+"/handle/"+handle+"/workflow_new?workflowID="+workflowItemId+"&stepID=reAuthorizationPaymentStep&actionID=reAuthorizationPaymentAction&change-country=true&voucher="+cocoon.request.get("country"),true);
+        }
+        else if (cocoon.request.get("change-currency"))
+        {
+            cocoon.redirectTo(contextPath+"/handle/"+handle+"/workflow_new?workflowID="+workflowItemId+"&stepID=reAuthorizationPaymentStep&actionID=reAuthorizationPaymentAction&change-currency=true&currency="+cocoon.request.get("currency"),true);
+        }
         else if (cocoon.request.get("submit_cancel"))
         {
             //cancel perform the reauthorizationpaymentaction
@@ -985,6 +993,18 @@ function doWorkflow()
             cocoon.exit();
         }
         else{
+//            var link = contextPath+"/handle/"+handle+"/workflow_new?workflowID="+workflowItemId+"&stepID=reAuthorizationPaymentStep&actionID=reAuthorizationPaymentAction";
+//
+//            //Send user to the overviewpage & await further steps.
+//            sendPageAndWait(link);
+//
+//            var redirUrl = FlowUtils.processChangeShoppingCart(getDSContext(), cocoon.request, cocoon.response, workflowItemId);
+//            if(redirUrl != null){
+//                cocoon.redirectTo(redirUrl,true);
+//                cocoon.exit();
+//            }
+
+
             try{
                 action = WorkflowManager.doState(getDSContext(), getDSContext().getCurrentUser(), getHttpRequest(), workflowItemId, workflow, action);
             }catch(exception){

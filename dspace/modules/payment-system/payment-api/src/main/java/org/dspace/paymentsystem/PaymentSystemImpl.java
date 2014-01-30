@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.xmlui.wing.Message;
 import org.dspace.app.xmlui.wing.WingException;
+import org.dspace.app.xmlui.wing.element.Division;
 import org.dspace.app.xmlui.wing.element.Select;
 import org.dspace.app.xmlui.wing.element.Text;
 import org.dspace.authorize.AuthorizeException;
@@ -25,10 +26,7 @@ import org.dspace.workflow.DryadWorkflowUtils;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static org.dspace.app.xmlui.wing.AbstractWingTransformer.message;
 
@@ -489,7 +487,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
     }
 
 
-    public void generateShoppingCart(Context context,org.dspace.app.xmlui.wing.element.List info,ShoppingCart shoppingCart,PaymentSystemConfigurationManager manager,String baseUrl,boolean selectCountry,Map<String,String> messages) throws WingException,SQLException
+    public void generateShoppingCart(Context context,org.dspace.app.xmlui.wing.element.List info,ShoppingCart shoppingCart,PaymentSystemConfigurationManager manager,String baseUrl,Map<String,String> messages) throws WingException,SQLException
     {
 
              Item item = Item.find(context,shoppingCart.getItem());
@@ -508,7 +506,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
 
 
                 generatePrice(context,info,manager,shoppingCart);
-                generateCountryList(info,manager,shoppingCart,item,selectCountry);
+                generateCountryList(info,manager,shoppingCart);
                 generateVoucherForm(context,info,manager,shoppingCart,messages);
             }catch (Exception e)
             {
@@ -519,11 +517,10 @@ public class PaymentSystemImpl implements PaymentSystemService {
 
     }
 
-    public void generateNoEditableShoppingCart(Context context, org.dspace.app.xmlui.wing.element.List info, ShoppingCart transaction, PaymentSystemConfigurationManager manager, String baseUrl, boolean selectCountry, Map<String, String> messages) throws WingException, SQLException
+    public void generateNoEditableShoppingCart(Context context, org.dspace.app.xmlui.wing.element.List info, ShoppingCart transaction, PaymentSystemConfigurationManager manager, String baseUrl, Map<String, String> messages) throws WingException, SQLException
 
     {
 
-        Item item = Item.find(context, transaction.getItem());
 
         Long totalSize = new Long(0);
 
@@ -539,7 +536,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
 
             info.addItem().addContent(transaction.getCurrency());
 
-            generatePayer(context, info, transaction, item);
+            generatePayer(context, info, transaction, null);
 
             generatePrice(context, info, manager, transaction);
 
@@ -574,13 +571,11 @@ public class PaymentSystemImpl implements PaymentSystemService {
         info.addItem().addContent(voucher1.getCode());
     }
 
-    private void generateCountryList(org.dspace.app.xmlui.wing.element.List info,PaymentSystemConfigurationManager manager,ShoppingCart shoppingCart,Item item,Boolean selectCountry) throws WingException{
-        //only generate country selection list when it is not on the publication select page, to do this we need to check the publication is not empty
-        if(selectCountry)
-        {
+    private void generateCountryList(org.dspace.app.xmlui.wing.element.List info,PaymentSystemConfigurationManager manager,ShoppingCart shoppingCart) throws WingException{
+
             java.util.List<String> countryArray = manager.getSortedCountry();
             info.addLabel(T_Country);
-            Select countryList = info.addItem("country-list", "select-list").addSelect("country");
+            Select countryList = info.addItem("country-list", "country-list").addSelect("country");
             countryList.addOption("","Select Your Country");
             for(String temp:countryArray){
                 String[] countryTemp = temp.split(":");
@@ -592,7 +587,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
                     countryList.addOption(false,countryTemp[0],countryTemp[0]);
                 }
             }
-        }
+
 
         if(shoppingCart.getCountry()!=null&&shoppingCart.getCountry().length()>0)
         {
@@ -634,7 +629,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
 
     private void generateVoucherForm(Context context,org.dspace.app.xmlui.wing.element.List info,PaymentSystemConfigurationManager manager,ShoppingCart shoppingCart,Map<String,String> messages) throws WingException,SQLException{
         Voucher voucher1 = Voucher.findById(context,shoppingCart.getVoucher());
-        if(messages.get("voucher")!=null)
+        if(messages!=null&&messages.get("voucher")!=null)
 
         {
 
@@ -653,7 +648,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
         org.dspace.app.xmlui.wing.element.Item voucher = info.addItem("voucher-list","voucher-list");
 
         Text voucherText = voucher.addText("voucher","voucher");
-        voucher.addButton("apply","apply");
+        voucher.addButton("apply","apply").setValue("Apply");
         if(voucher1!=null){
             voucherText.setValue(voucher1.getCode());
             info.addItem("remove-voucher","remove-voucher").addXref("#","Remove Voucher : "+voucher1.getCode());
@@ -707,8 +702,19 @@ public class PaymentSystemImpl implements PaymentSystemService {
     private void generatePayer(Context context,org.dspace.app.xmlui.wing.element.List info,ShoppingCart shoppingCart,Item item) throws WingException,SQLException{
         info.addLabel(T_Payer);
         String payerName = this.getPayer(context, shoppingCart, null);
+        String journal = null;
+        if(item!=null){
         DCValue[] values= item.getMetadata("prism.publicationName");
-        if(values!=null&&values.length>0)
+            if(values!=null&&values.length>0)
+            {
+                journal=values[0].toString();
+            }
+        }
+        else
+        {
+            journal = shoppingCart.getJournal();
+        }
+         if(journal!=null&&journal.length()>0)
         {
             //on the first page don't generate the payer name, wait until user choose country or journal
             info.addItem("payer","payer").addContent(payerName);
