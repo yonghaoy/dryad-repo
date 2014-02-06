@@ -39,7 +39,7 @@ public interface PaypalService
 {
     public String getSecureTokenId();
 
-    public String generateSecureToken(ShoppingCart shoppingCart, String secureTokenId, String itemID, String knotId);
+    public String generateSecureToken(ShoppingCart shoppingCart,String secureTokenId,String itemID, String type,String knotId);
 
     public boolean submitReferenceTransaction(Context c, WorkflowItem wfi, HttpServletRequest request);
 

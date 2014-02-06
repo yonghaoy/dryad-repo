@@ -7,6 +7,7 @@
  */
 package org.dspace.app.xmlui.aspect.submission.submit;
 
+import org.apache.cocoon.components.flow.FlowHelper;
 import org.apache.cocoon.environment.ObjectModelHelper;
 import org.apache.cocoon.environment.Request;
 import org.apache.cocoon.environment.Response;
@@ -53,6 +54,7 @@ public class PaypalReturnStep extends AbstractStep {
         public void addBody(Body body) throws SAXException, WingException, UIException, SQLException, IOException, AuthorizeException {
 
             Request request = ObjectModelHelper.getRequest(objectModel);
+            Map <String,String> pare=request.getParameters();
             String secureToken = request.getParameter("SECURETOKEN");
             String result = request.getParameter("RESULT");
             String message = request.getParameter("RESPMSG");
@@ -113,7 +115,8 @@ public class PaypalReturnStep extends AbstractStep {
 
                         }
                         shoppingCart.update();
-                        String knotId ="1";
+
+                        String knotId = request.getParameter("USER1");
                         if(type.equals("A"))
                         {
                            WorkspaceItem workspaceItem = WorkspaceItem.findByItemId(context,item.getID());
@@ -153,6 +156,6 @@ public class PaypalReturnStep extends AbstractStep {
         {
             Division error = body.addDivision("error");
             error.addPara(message);
-            error.addList("return").addItemXref("My Submissions","/submissions");
+            error.addList("return").addItemXref("/submissions","My Submissions");
         }
     }

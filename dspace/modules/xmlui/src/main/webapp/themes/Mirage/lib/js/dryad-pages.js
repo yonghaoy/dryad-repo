@@ -584,7 +584,9 @@ function shoeShoppingCartWaiver(obj){
     }
 }
 function removeChangeShoppingCart(fieldName){
-    var form=jQuery('form[id="aspect_submission_submit_CheckoutStep_div_submit-completed-dataset"]');
+    var checkoutform=jQuery('form[id="aspect_submission_submit_CheckoutStep_div_submit-completed-dataset"]');
+    var reAuthorform=jQuery('form[id="aspect_submission_workflow_WorkflowTransformer_div_submit-completed-dataset"]');
+    var returnForm = jQuery('form[id="aspect_submission_submit_PaypalReturnStep_div_submit-completed-dataset"]');
     if(fieldName=="remove-country")
     {
         var country = jQuery(':input[name="country"]').val("");
@@ -593,7 +595,9 @@ function removeChangeShoppingCart(fieldName){
     {
         var voucher = jQuery(':input[name="voucher"]').val("");
     }
-    form.submit();
+    checkoutform.submit();
+    reAuthorform.submit();
+    returnForm.submit();
 }
 
 function showEmptyCountry(){

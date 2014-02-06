@@ -65,7 +65,7 @@ public class PaypalImpl implements PaypalService{
     }
 
     //generate a secure token from paypal
-    public String generateSecureToken(ShoppingCart shoppingCart,String secureTokenId,String itemID, String type){
+    public String generateSecureToken(ShoppingCart shoppingCart,String secureTokenId,String itemID, String type,String knotId){
         String secureToken=null;
         String requestUrl = ConfigurationManager.getProperty("payment-system","paypal.payflow.link");
 
@@ -97,6 +97,8 @@ public class PaypalImpl implements PaypalService{
             }
             //TODO:add currency from shopping cart
             get.addParameter("CURRENCY", shoppingCart.getCurrency());
+            get.addParameter("ECHODATA","TRUE");
+            get.addParameter("USER1",knotId);
 	    log.debug("paypal request URL " + get);
             switch (new HttpClient().executeMethod(get)) {
                 case 200:
@@ -375,7 +377,14 @@ public class PaypalImpl implements PaypalService{
             //generate the shopping cart and insert it into main page , disable the shopping cart in option section
             List shoppingCartlist = mainDiv.addList("shopping-cart");
             shoppingCartlist.addItem().addHidden("hideShoppingCart");
-            payementSystemService.generateShoppingCart(context,shoppingCartlist, shoppingCart, manager, "", messages);
+            if(shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED)||shoppingCart.getStatus().equals(ShoppingCart.STATUS_VERIFIED))
+            {
+                payementSystemService.generateNoEditableShoppingCart(context,shoppingCartlist, shoppingCart, manager, "", messages);
+            }
+            else {
+                payementSystemService.generateShoppingCart(context,shoppingCartlist, shoppingCart, manager, "", messages);
+            }
+
 
             if(shoppingCart.getTotal()==0||shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED)||!shoppingCart.getCurrency().equals("USD"))
             {
@@ -385,7 +394,7 @@ public class PaypalImpl implements PaypalService{
             }
             else if(shoppingCart.getStatus().equals(ShoppingCart.STATUS_VERIFIED)&&type.equals("A"))
             {
-                //already verified, no need to do it again
+                //already paid, no need to pay again
                 showSkipButton=true;
                 generateNoCostForm(mainDiv, shoppingCart,item, manager, payementSystemService);
             }
@@ -448,7 +457,7 @@ public class PaypalImpl implements PaypalService{
 
         String secureToken = null;
         String secureTokenId = getSecureTokenId();
-        secureToken = generateSecureToken(shoppingCart, secureTokenId,Integer.toString(shoppingCart.getItem()),type);
+        secureToken = generateSecureToken(shoppingCart, secureTokenId,Integer.toString(shoppingCart.getItem()),type,knotId);
 
         if(secureToken!=null){
             shoppingCart.setSecureToken(secureToken);
@@ -476,7 +485,8 @@ public class PaypalImpl implements PaypalService{
             else
             paypalInfo.addHidden("AMT").setValue(Double.toString(shoppingCart.getTotal()));
             formBody.addLabel("Total Amount");
-            formBody.addItem().addContent(Double.toString(shoppingCart.getTotal()));
+            String symbol = PaymentSystemConfigurationManager.getCurrencySymbol(shoppingCart.getCurrency());
+            formBody.addItem().addContent(symbol+Double.toString(shoppingCart.getTotal()));
             formBody.addLabel("Credit Card Info");
             formBody.addLabel("Credit Card Number");
             formBody.addItem().addText("ACCT").setValue("");
@@ -509,9 +519,10 @@ public class PaypalImpl implements PaypalService{
             {
                 email = "";
             }
+            formBody.addLabel("Billing Email");
             formBody.addItem().addText("BILLTOEMAIL").setValue(email);
             formBody.addLabel("Comment");
-            formBody.addItem().addText("COMMENT1").setValue(knotId);
+            formBody.addItem().addText("COMMENT1");
             //add this id to make sure the workflow resume
             formBody.addItem().addHidden("submission-continue").setValue(knotId);
 

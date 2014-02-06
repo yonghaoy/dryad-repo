@@ -972,17 +972,26 @@ function doWorkflow()
             getDSContext().complete();
             cocoon.exit();
         }
-        else if (cocoon.request.get("submit-voucher"))
-        {
-            cocoon.redirectTo(contextPath+"/handle/"+handle+"/workflow_new?workflowID="+workflowItemId+"&stepID=reAuthorizationPaymentStep&actionID=reAuthorizationPaymentAction&submit-voucher=true&voucher="+cocoon.request.get("voucher"),true);
-        }
-        else if (cocoon.request.get("change-country"))
-        {
-            cocoon.redirectTo(contextPath+"/handle/"+handle+"/workflow_new?workflowID="+workflowItemId+"&stepID=reAuthorizationPaymentStep&actionID=reAuthorizationPaymentAction&change-country=true&voucher="+cocoon.request.get("country"),true);
-        }
-        else if (cocoon.request.get("change-currency"))
-        {
-            cocoon.redirectTo(contextPath+"/handle/"+handle+"/workflow_new?workflowID="+workflowItemId+"&stepID=reAuthorizationPaymentStep&actionID=reAuthorizationPaymentAction&change-currency=true&currency="+cocoon.request.get("currency"),true);
+        else if(cocoon.request.get("country")!=null||cocoon.request.get("voucher")!=null||cocoon.request.get("currency")!=null)
+        {             //change shopping cart
+            var currency = "";
+            var country = "";
+            var voucher = "";
+
+            if(cocoon.request.get("currency")!=null)
+            currency= cocoon.request.get("currency");
+            if(cocoon.request.get("country")!=null)
+            country= cocoon.request.get("country");
+            if(cocoon.request.get("voucher")!=null)
+            voucher= cocoon.request.get("voucher");
+
+
+            var link = contextPath+"/handle/"+handle+"/workflow_new?workflowID="+workflowItemId+"&stepID=reAuthorizationPaymentStep&actionID=reAuthorizationPaymentAction&currency="+currency+"&country="+country+"&voucher="+voucher;
+
+            cocoon.redirectTo(link,true);
+            getDSContext().complete();
+            cocoon.exit();
+
         }
         else if (cocoon.request.get("submit_cancel"))
         {
@@ -993,17 +1002,6 @@ function doWorkflow()
             cocoon.exit();
         }
         else{
-//            var link = contextPath+"/handle/"+handle+"/workflow_new?workflowID="+workflowItemId+"&stepID=reAuthorizationPaymentStep&actionID=reAuthorizationPaymentAction";
-//
-//            //Send user to the overviewpage & await further steps.
-//            sendPageAndWait(link);
-//
-//            var redirUrl = FlowUtils.processChangeShoppingCart(getDSContext(), cocoon.request, cocoon.response, workflowItemId);
-//            if(redirUrl != null){
-//                cocoon.redirectTo(redirUrl,true);
-//                cocoon.exit();
-//            }
-
 
             try{
                 action = WorkflowManager.doState(getDSContext(), getDSContext().getCurrentUser(), getHttpRequest(), workflowItemId, workflow, action);

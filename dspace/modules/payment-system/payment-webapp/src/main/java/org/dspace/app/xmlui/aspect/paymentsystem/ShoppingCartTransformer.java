@@ -117,7 +117,7 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
             //add the order summary form (wrapped in div.ds-option-set for proper sidebar style)
             List info = options.addList("Payment",List.TYPE_FORM,"paymentsystem");
              //   only when we have a journal  , show the shopping cart
-            if(request.getRequestURI().contains("deposit-confirmed"))
+            if(request.getRequestURI().contains("deposit-confirmed")||shoppingCart.getStatus().equals(ShoppingCart.STATUS_VERIFIED)||shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED))
             {
                 paymentSystemService.generateNoEditableShoppingCart(context,info,shoppingCart,manager,request.getContextPath(),messages);
             }

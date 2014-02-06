@@ -1182,7 +1182,7 @@ parameter that is being used (see variable defined above) -->
             <xsl:apply-templates select="*"/>
         </select>
     </xsl:template>
-    <xsl:template match="//dri:field[@id ='aspect.submission.submit.CheckoutStep.field.country' or @id ='aspect.submission.submit.CheckoutStep.field.currency' or @id ='aspect.submission.workflow.WorkflowTransformer.field.country' or @id ='aspect.submission.workflow.WorkflowTransformer.field.currency']">
+    <xsl:template match="//dri:field[@id ='aspect.submission.submit.CheckoutStep.field.country' or @id ='aspect.submission.submit.CheckoutStep.field.currency' or @id ='aspect.submission.workflow.WorkflowTransformer.field.country' or @id ='aspect.submission.workflow.WorkflowTransformer.field.currency' or @id='aspect.submission.submit.PaypalReturnStep.field.currency' or @id='aspect.submission.submit.PaypalReturnStep.field.country']">
     <select onchange="this.form.submit()">
             <xsl:attribute name="name">
                 <xsl:value-of select="@n"/>

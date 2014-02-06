@@ -106,9 +106,6 @@ public class PaymentSystemImpl implements PaymentSystemService {
             newShoppingcart.setItem(itemId);
         }
         newShoppingcart.setStatus(status);
-        newShoppingcart.setVoucher(null);
-        newShoppingcart.setTransactionId(null);
-        newShoppingcart.setJournal(null);
         newShoppingcart.setJournalSub(false);
         newShoppingcart.setBasicFee(PaymentSystemConfigurationManager.getCurrencyProperty(currency));
         newShoppingcart.setNoInteg(PaymentSystemConfigurationManager.getNotIntegratedJournalFeeProperty(currency));
