@@ -332,7 +332,7 @@ public class PaypalImpl implements PaypalService{
             //check all the changes to shopping cart
             VoucherValidationService voucherValidationService = new DSpace().getSingletonService(VoucherValidationService.class);
             String voucherCode = "";
-            if(request.getParameter("submit-voucher")!=null)
+            if(request.getParameter("submit-voucher")!=null||request.getParameter("voucher")!=null)
             {    //user is using the voucher code
                 voucherCode = request.getParameter("voucher");
                 if(voucherCode!=null&&voucherCode.length()>0){
