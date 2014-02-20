@@ -55,6 +55,7 @@
         -->
 
         <profile>
+            <id>payment-webapp</id>
             <activation>
                 <property>
                     <name>dspace.config</name>
@@ -157,6 +158,12 @@
             <groupId>org.dspace</groupId>
             <artifactId>dspace-services-utils</artifactId>
             <version>2.0.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>3.0.5.RELEASE</version>
         </dependency>
     </dependencies>
 

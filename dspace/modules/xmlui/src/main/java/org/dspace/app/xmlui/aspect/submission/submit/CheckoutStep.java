@@ -41,6 +41,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * CheckoutStep responsible for supplying interface for Paypal Checkout.

@@ -96,6 +96,10 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
             ShoppingCart shoppingCart = null;
             //create new transaction or update transaction id with item
             shoppingCart = paymentSystemService.getShoppingCartByItemId(context,item.getID());
+            if(request.getParameter("country")!=null)
+            {
+                shoppingCart.setCountry(request.getParameter("country"));
+            }
             paymentSystemService.updateTotal(context,shoppingCart,null);
 
             //todo:find a better way to detect the step we are in

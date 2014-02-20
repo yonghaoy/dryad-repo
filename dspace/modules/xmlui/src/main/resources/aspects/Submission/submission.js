@@ -208,11 +208,15 @@ function doSubmissionCheckout()
     do {
         //Send user to the overviewpage & await further steps.
         sendPageAndWait("submit/checkout",{"id":workItemID});
-
+        if(request.getParameter("submit_cancel") != null){
+            //go back to overview step
+            return request.getContextPath() + "/submit-overview?workspaceID=" + workItem.getID();
+        }else{
         var redirUrl = FlowUtils.processCheckoutStep(getDSContext(), cocoon.request, cocoon.response, workItemID);
         if(redirUrl != null){
             cocoon.redirectTo(redirUrl,true);
             cocoon.exit();
+        }
         }
     }while (true);
 
@@ -972,6 +976,14 @@ function doWorkflow()
             getDSContext().complete();
             cocoon.exit();
         }
+        else if (cocoon.request.get("submit_cancel"))
+        {
+            //cancel perform the reauthorizationpaymentaction
+            var contextPath = cocoon.request.getContextPath();
+            cocoon.redirectTo(contextPath+"/my-tasks",true);
+            getDSContext().complete();
+            cocoon.exit();
+        }
         else if(cocoon.request.get("country")!=null||cocoon.request.get("voucher")!=null||cocoon.request.get("currency")!=null)
         {             //change shopping cart
             var currency = "";
@@ -992,14 +1004,6 @@ function doWorkflow()
             getDSContext().complete();
             cocoon.exit();
 
-        }
-        else if (cocoon.request.get("submit_cancel"))
-        {
-            //cancel perform the reauthorizationpaymentaction
-            var contextPath = cocoon.request.getContextPath();
-            cocoon.redirectTo(contextPath+"/my-tasks",true);
-            getDSContext().complete();
-            cocoon.exit();
         }
         else{
 

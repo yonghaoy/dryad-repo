@@ -98,7 +98,8 @@ public class PaypalImpl implements PaypalService{
             //TODO:add currency from shopping cart
             get.addParameter("CURRENCY", shoppingCart.getCurrency());
             get.addParameter("ECHODATA","TRUE");
-            get.addParameter("USER1",knotId);
+            //get.addParameter("USER1",knotId);
+            get.addParameter("USER1",itemID);
 	    log.debug("paypal request URL " + get);
             switch (new HttpClient().executeMethod(get)) {
                 case 200:
@@ -487,29 +488,37 @@ public class PaypalImpl implements PaypalService{
             formBody.addLabel("Total Amount");
             String symbol = PaymentSystemConfigurationManager.getCurrencySymbol(shoppingCart.getCurrency());
             formBody.addItem().addContent(symbol+Double.toString(shoppingCart.getTotal()));
-            formBody.addLabel("Credit Card Info");
-            formBody.addLabel("Credit Card Number");
-            formBody.addItem().addText("ACCT").setValue("");
-            formBody.addLabel("Experiation Date");
-            formBody.addItem().addText("EXPDATE").setValue("");
-            formBody.addLabel("CVV2 Number");
-            formBody.addItem().addText("CVV2").setValue("");
-            formBody.addLabel("Billing First Name");
-            formBody.addItem().addText("BILLTOFIRSTNAME").setValue("");
-            formBody.addLabel("Billing Last Name");
-            formBody.addItem().addText("BILLTOLASTNAME").setValue("");
-            formBody.addLabel("Billing Address line 1");
-            formBody.addItem().addText("BILLTOSTREET").setValue("");
-            formBody.addLabel("Billing Address line 2 (optional)");
-            formBody.addItem().addText("BILLTOSTREET2").setValue("");
-            formBody.addLabel("Billing City");
-            formBody.addItem().addText("BILLTOCITY").setValue("");
-            formBody.addLabel("Billing State");
-            formBody.addItem().addText("BILLTOSTATE").setValue("");
-            formBody.addLabel("Billing Zip");
-            formBody.addItem().addText("BILLTOZIP").setValue("");
-            formBody.addLabel("Billing Country");
-            formBody.addItem().addText("BILLTOCOUNTRY").setValue("");
+            List creditcard = formBody.addList("creditcard");
+
+            creditcard.addLabel("Credit Card Info");
+            creditcard.addLabel("Credit Card Number");
+            creditcard.addItem().addText("ACCT").setValue("");
+            List validate = formBody.addList("validate");
+            validate.addLabel("Experiation Date");
+            validate.addItem().addText("EXPDATE").setValue("");
+            validate.addLabel("CVV2 Number");
+            validate.addItem().addText("CVV2").setValue("");
+
+
+            List name = formBody.addList("name");
+            name.addLabel("Billing First Name");
+            name.addItem().addText("BILLTOFIRSTNAME").setValue("");
+            name.addLabel("Billing Last Name");
+            name.addItem().addText("BILLTOLASTNAME").setValue("");
+            List billing = formBody.addList("billing");
+            billing.addLabel("Billing Address line 1");
+            billing.addItem().addText("BILLTOSTREET").setValue("");
+            billing.addLabel("Billing Address line 2 (optional)");
+            billing.addItem().addText("BILLTOSTREET2").setValue("");
+            List local = billing.addList("local");
+            local.addLabel("Billing City");
+            local.addItem().addText("BILLTOCITY").setValue("");
+            local.addLabel("Billing State");
+            local.addItem().addText("BILLTOSTATE").setValue("");
+            local.addLabel("Billing Zip");
+            local.addItem().addText("BILLTOZIP").setValue("");
+            billing.addLabel("Billing Country");
+            billing.addItem().addText("BILLTOCOUNTRY").setValue("");
 
             EPerson ePerson = EPerson.find(context, shoppingCart.getDepositor());
             String email="";
@@ -519,10 +528,10 @@ public class PaypalImpl implements PaypalService{
             {
                 email = "";
             }
-            formBody.addLabel("Billing Email");
-            formBody.addItem().addText("BILLTOEMAIL").setValue(email);
-            formBody.addLabel("Comment");
-            formBody.addItem().addText("COMMENT1");
+            billing.addLabel("Billing Email");
+            billing.addItem().addText("BILLTOEMAIL").setValue(email);
+            billing.addLabel("Comment");
+            billing.addItem().addText("COMMENT1");
             //add this id to make sure the workflow resume
             formBody.addItem().addHidden("submission-continue").setValue(knotId);
 

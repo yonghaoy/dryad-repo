@@ -32,6 +32,8 @@ import org.dspace.utils.DSpace;
 import org.dspace.workflow.WorkflowItem;
 import org.xml.sax.SAXException;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
@@ -66,7 +68,7 @@ public class PaypalReturnStep extends AbstractStep {
             Date now = new Date();
             PaypalService paypalService = new DSpace().getSingletonService(PaypalService.class);
             PaymentSystemService paymentSystemService = new DSpace().getSingletonService(PaymentSystemService.class);
-            Response response = ObjectModelHelper.getResponse(objectModel);
+            HttpServletResponse response = (HttpServletResponse)objectModel.get("httpresponse");
             log.debug("paypal secureToken = " + secureToken);
             log.debug("paypal result = " + result);
             log.debug("paypal message = " + message);
@@ -122,6 +124,9 @@ public class PaypalReturnStep extends AbstractStep {
                            WorkspaceItem workspaceItem = WorkspaceItem.findByItemId(context,item.getID());
                            String actionUrl = contextPath+"/submit-checkout?workspaceID="+workspaceItem.getID();
                             paypalService.generateUserForm(context,body,actionUrl,knotId,"A",request,item);
+                            //response.sendRedirect(actionUrl);
+//                            RequestDispatcher dispatcher = request.getRequestDispatcher(actionUrl);
+//                            dispatcher.forward(request, response);
                         }
                         else
                         {
@@ -129,6 +134,9 @@ public class PaypalReturnStep extends AbstractStep {
                            Collection collection = workflowItem.getCollection();
                            String actionUrl = contextPath + "/handle/"+collection.getHandle() +"/workflow?workflowID="+workflowItem.getID()+ "&stepID=reAuthorizationPaymentStep&actionID=reAuthorizationPaymentAction";
                            paypalService.generateUserForm(context,body,actionUrl,knotId,"S",request,item);
+                            //response.sendRedirect(actionUrl);
+//                            RequestDispatcher dispatcher = request.getRequestDispatcher(actionUrl);
+//                            dispatcher.forward(request, response);
                         }
                     }
                     else

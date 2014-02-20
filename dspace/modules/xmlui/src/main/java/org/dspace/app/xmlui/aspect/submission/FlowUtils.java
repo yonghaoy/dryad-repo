@@ -838,7 +838,10 @@ public class FlowUtils {
 
 
         String submitButton = Util.getSubmitButton(request, "submit_finish");
-
+        if(request.getParameter("submit_cancel") != null){
+            //go back to overview step
+            return request.getContextPath() + "/submit-overview?workspaceID=" + workItem.getID();
+        }else
         if(request.getParameter(AbstractProcessingStep.NEXT_BUTTON) != null||request.getParameter("skip_payment") != null){
             if(workItem instanceof WorkspaceItem){
                 EventLogger.log(context, "submission-checkout", "button=done");
@@ -855,13 +858,6 @@ public class FlowUtils {
             }
 
         }
-        else
-        if(request.getParameter("submit_cancel") != null){
-            //go back to overview step
-            return request.getContextPath() + "/submit-overview?workspaceID=" + workItem.getID();
-        }
-
-
         //Return null, since no redir is required
         return null;
     }
