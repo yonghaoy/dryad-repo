@@ -16,6 +16,7 @@ import org.dspace.app.xmlui.wing.WingException;
 import org.dspace.app.xmlui.wing.element.Division;
 import org.dspace.app.xmlui.wing.element.Select;
 import org.dspace.app.xmlui.wing.element.Text;
+import org.dspace.app.xmlui.wing.element.Xref;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
 import org.dspace.core.Context;
@@ -80,6 +81,15 @@ public class PaymentSystemImpl implements PaymentSystemService {
         protected static final Message T_Apply=
 
                         message("xmlui.PaymentSystem.shoppingcart.order.apply");
+
+
+
+    protected static final String Country_Help_Text="Input Country code";
+
+    protected static final String Voucher_Help_Text="Select voucher to get country discount";
+
+    protected static final String Currency_Help_Text="Select Currency";
+
 
     /** Protected Constructor */
     protected PaymentSystemImpl()
@@ -497,7 +507,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
             try{
 
                 //add selected currency section
-                info.addLabel(T_Header);
+
                 generateCurrencyList(info,manager,shoppingCart);
                 generatePayer(context,info,shoppingCart,item);
 
@@ -571,7 +581,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
     private void generateCountryList(org.dspace.app.xmlui.wing.element.List info,PaymentSystemConfigurationManager manager,ShoppingCart shoppingCart) throws WingException{
 
             java.util.List<String> countryArray = manager.getSortedCountry();
-            info.addLabel(T_Country);
+
             Select countryList = info.addItem("country-list", "country-list").addSelect("country");
             countryList.addOption("","Select Your Country");
             for(String temp:countryArray){
@@ -584,7 +594,10 @@ public class PaymentSystemImpl implements PaymentSystemService {
                     countryList.addOption(false,countryTemp[0],countryTemp[0]);
                 }
             }
+            Select countryList = info.addItem("country-list", "select-list").addSelect("country");
 
+            countryList.setLabel(T_Country);
+            countryList.setHelp(Country_Help_Text);
 
         if(shoppingCart.getCountry()!=null&&shoppingCart.getCountry().length()>0)
         {
@@ -608,6 +621,8 @@ public class PaymentSystemImpl implements PaymentSystemService {
     private void generateCurrencyList(org.dspace.app.xmlui.wing.element.List info,PaymentSystemConfigurationManager manager,ShoppingCart shoppingCart) throws WingException,SQLException{
         org.dspace.app.xmlui.wing.element.Item currency = info.addItem("currency-list", "select-list");
         Select currencyList = currency.addSelect("currency");
+        currencyList.setLabel(T_Header);
+        //currencyList.setHelp(Currency_Help_Text);
         Properties currencyArray = manager.getAllCurrencyProperty();
 
         for(String currencyTemp: currencyArray.stringPropertyNames())
@@ -641,17 +656,19 @@ public class PaymentSystemImpl implements PaymentSystemService {
             info.addItem("errorMessage","errorMessage").addContent("");
 
         }
-        info.addLabel(T_Voucher);
+
         org.dspace.app.xmlui.wing.element.Item voucher = info.addItem("voucher-list","voucher-list");
 
         Text voucherText = voucher.addText("voucher","voucher");
+        voucherText.setLabel(T_Voucher);
+        voucherText.setHelp(Voucher_Help_Text);
         voucher.addButton("apply","apply").setValue("Apply");
         if(voucher1!=null){
             voucherText.setValue(voucher1.getCode());
-            info.addItem("remove-voucher","remove-voucher").addXref("#","Remove Voucher : "+voucher1.getCode());
+            info.addItem("remove-voucher","remove-voucher").addXref("#", "Remove Voucher : " + voucher1.getCode(), "remove-voucher", "remove-voucher");
         }
         else{
-            info.addItem("remove-voucher","remove-voucher").addXref("#","");
+            info.addItem("remove-voucher","remove-voucher").addXref("#", "", "remove-voucher", "remove-voucher");
         }
 
 
