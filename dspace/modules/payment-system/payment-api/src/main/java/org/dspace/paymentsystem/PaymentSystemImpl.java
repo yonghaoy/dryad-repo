@@ -594,7 +594,6 @@ public class PaymentSystemImpl implements PaymentSystemService {
                     countryList.addOption(false,countryTemp[0],countryTemp[0]);
                 }
             }
-            Select countryList = info.addItem("country-list", "select-list").addSelect("country");
 
             countryList.setLabel(T_Country);
             countryList.setHelp(Country_Help_Text);
