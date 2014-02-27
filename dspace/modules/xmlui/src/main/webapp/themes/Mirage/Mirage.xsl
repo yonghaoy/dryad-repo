@@ -211,7 +211,7 @@
 
             #connect-illustrated-prose img {
                 width: auto;
-                margin: 4px;		
+                margin: 4px;
             }
 
             #aspect_discovery_SiteViewer_field_query {
@@ -241,7 +241,7 @@
                         <div><span class="publication-date">2013-03-01</span>
                             <a href="/pages/pricing">
                                 <img alt="" src="/themes/Mirage/images/watering-can.png" />
-                                <p style="width: 450px; color: #363; font-size: 90%; top: 0px; right: 10px; line-height: 1.2em; position: absolute; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);"> 
+                                <p style="width: 450px; color: #363; font-size: 90%; top: 0px; right: 10px; line-height: 1.2em; position: absolute; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">
                                     Data Publishing Charges to help sustain open data at Dryad
                                 </p>
                                 <p style="drop-shadow: 4px 4px; position: absolute; right: 40px; bottom: 80px; font-size: 70%; text-align: right; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">Learn More &#187;</p>
@@ -322,7 +322,7 @@
                 <div id="ds_connect_with_dryad" class="ds-static-div primary" style="height: 475px; font-size: 14px;">
                     <div id="connect-illustrated-prose">
                         <p>
-                            <img src="/themes/Mirage/images/seed-2.png" style="float: left; margin-left: -8px;" 
+                            <img src="/themes/Mirage/images/seed-2.png" style="float: left; margin-left: -8px;"
                                  alt="Dryad's data packages are like seeds."
                                  title="Dryad's data packages are like seeds." />
                             Publishers, societies, universities, libraries,
@@ -331,12 +331,12 @@
                             Tap into an active knowledge-sharing network,
                             receive discounts on submission fees, and help
                             shape Dryad's future.
-                            <img src="/themes/Mirage/images/seed-3.png" style="float: right; margin-right: -8px;" 
+                            <img src="/themes/Mirage/images/seed-3.png" style="float: right; margin-right: -8px;"
                                  alt="Researchers use Dryad data in their new work."
                                  title="Researchers use Dryad data in their new work."/>
                         </p>
                         <p>
-                            <a href="/pages/journalIntegration">Submission integration</a> 
+                            <a href="/pages/journalIntegration">Submission integration</a>
                             is a free service that allows publishers to
                             coordinate manuscript and data submissions.
                             It makes submitting data easy for researchers; makes linking
@@ -344,11 +344,11 @@
                             confidential review of data prior to publication.
                         </p>
                         <p>
-                            <img src="/themes/Mirage/images/seed-1.png" style="float: left; margin-left: -8px;" 
+                            <img src="/themes/Mirage/images/seed-1.png" style="float: left; margin-left: -8px;"
                                  alt="New data is added to Dryad, and the cycle continues."
                                  title="New data is added to Dryad, and the cycle continues."/>
                             Submission fees support the cost of keeping Dryad's content free to use.
-                            Flexible <a href="/pages/pricing">pricing plans</a> 
+                            Flexible <a href="/pages/pricing">pricing plans</a>
                             provide volume discounts.
                         </p>
                     </div>
@@ -442,7 +442,7 @@
             </div>
             <!-- START BLOG -->
             <div class="home-col-2">
-                <xsl:apply-templates select="dri:div[@id='aspect.dryadinfo.DryadBlogFeed.div.dryad-info-home']"/> 
+                <xsl:apply-templates select="dri:div[@id='aspect.dryadinfo.DryadBlogFeed.div.dryad-info-home']"/>
             </div>
 
         </div>
@@ -566,8 +566,8 @@
                 <li><a href="/pages/membershipOverview">Membership</a></li>
                 <li><a href="/pages/journalIntegration">Submission integration</a></li>
                 <li><a href="/pages/pricing">Pricing plans</a></li>
-            </ul> 
-        </div>      
+            </ul>
+        </div>
 	  </div>
     </xsl:template>
 
@@ -1220,6 +1220,21 @@ parameter that is being used (see variable defined above) -->
 
 
 
+    <xsl:template match="//dri:field[@id='aspect.submission.submit.CheckoutStep.field.voucher' or @id='aspect.submission.submit.PaypalReturnStep.field.voucher' or @id='aspect.submission.workflow.WorkflowTransformer.field.voucher']">
+        <input>
+            <xsl:attribute name="name">
+                <xsl:value-of select="@n"/>
+            </xsl:attribute>
+            <xsl:attribute name="value">
+                <xsl:value-of select="@value"/>
+            </xsl:attribute>
+            <xsl:attribute name="id">
+                <xsl:value-of select="translate(@id,'.','_')"/>
+            </xsl:attribute>
+        </input>
+    </xsl:template>
+
+
     <xsl:template match="//dri:field[@id='aspect.paymentsystem.ShoppingCartTransformer.field.currency' or @id='aspect.paymentsystem.ShoppingCartTransformer.field.country' ]">
     <select onchange="javascript:updateOrder()">
             <xsl:attribute name="name">
@@ -1280,7 +1295,7 @@ parameter that is being used (see variable defined above) -->
     <xsl:template match="//dri:list[@n='voucher-list']">
                  <xsl:apply-templates/>
     </xsl:template>
-    
+
     <!-- make sure search labels appear -->
     <xsl:template name="search_labels">
         <xsl:variable name="currentId">
@@ -1311,7 +1326,7 @@ parameter that is being used (see variable defined above) -->
             <xsl:value-of select="."/>
         </xsl:comment>
     </xsl:template>
-        
+
 
     <!-- remove voucher link -->
     <xsl:template match="//dri:item[@id='aspect.paymentsystem.ShoppingCartTransformer.item.remove-voucher']/dri:xref">

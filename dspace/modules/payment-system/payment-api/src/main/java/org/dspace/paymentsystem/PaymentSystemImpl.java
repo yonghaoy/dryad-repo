@@ -581,7 +581,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
     private void generateCountryList(org.dspace.app.xmlui.wing.element.List info,PaymentSystemConfigurationManager manager,ShoppingCart shoppingCart) throws WingException{
 
             java.util.List<String> countryArray = manager.getSortedCountry();
-
+            info.addLabel(T_Country);
             Select countryList = info.addItem("country-list", "country-list").addSelect("country");
             countryList.addOption("","Select Your Country");
             for(String temp:countryArray){
@@ -618,9 +618,10 @@ public class PaymentSystemImpl implements PaymentSystemService {
     }
 
     private void generateCurrencyList(org.dspace.app.xmlui.wing.element.List info,PaymentSystemConfigurationManager manager,ShoppingCart shoppingCart) throws WingException,SQLException{
+        info.addLabel(T_Header);
         org.dspace.app.xmlui.wing.element.Item currency = info.addItem("currency-list", "select-list");
         Select currencyList = currency.addSelect("currency");
-        currencyList.setLabel(T_Header);
+        //currencyList.setLabel(T_Header);
         //currencyList.setHelp(Currency_Help_Text);
         Properties currencyArray = manager.getAllCurrencyProperty();
 
@@ -655,7 +656,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
             info.addItem("errorMessage","errorMessage").addContent("");
 
         }
-
+        info.addLabel(T_Voucher);
         org.dspace.app.xmlui.wing.element.Item voucher = info.addItem("voucher-list","voucher-list");
 
         Text voucherText = voucher.addText("voucher","voucher");

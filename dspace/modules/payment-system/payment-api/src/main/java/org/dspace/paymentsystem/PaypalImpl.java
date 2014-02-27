@@ -377,7 +377,7 @@ public class PaypalImpl implements PaypalService{
             payementSystemService.updateTotal(context,shoppingCart,null);
             //generate the shopping cart and insert it into main page , disable the shopping cart in option section
             List shoppingCartlist = mainDiv.addList("shopping-cart");
-            shoppingCartlist.addItem().addHidden("hideShoppingCart");
+            //shoppingCartlist.addItem().addHidden("hideShoppingCart");
             if(shoppingCart.getStatus().equals(ShoppingCart.STATUS_COMPLETED)||shoppingCart.getStatus().equals(ShoppingCart.STATUS_VERIFIED))
             {
                 payementSystemService.generateNoEditableShoppingCart(context,shoppingCartlist, shoppingCart, manager, "", messages);

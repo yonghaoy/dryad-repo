@@ -112,10 +112,10 @@ public class ShoppingCartTransformer extends AbstractDSpaceTransformer {
             {
                 showShoppingCart=false;
             }
-            if(request.getParameter("hideShoppingCart")!=null)
-            {
-                showShoppingCart=false;
-            }
+//            if(request.getParameter("hideShoppingCart")!=null)
+//            {
+//                showShoppingCart=false;
+//            }
 
             if(showShoppingCart){
             //add the order summary form (wrapped in div.ds-option-set for proper sidebar style)
