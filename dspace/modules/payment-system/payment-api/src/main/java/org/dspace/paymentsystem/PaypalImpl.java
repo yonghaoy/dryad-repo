@@ -99,7 +99,7 @@ public class PaypalImpl implements PaypalService{
             get.addParameter("CURRENCY", shoppingCart.getCurrency());
             get.addParameter("ECHODATA","TRUE");
             //get.addParameter("USER1",knotId);
-            get.addParameter("USER1",itemID);
+            get.addParameter("USER1",knotId);
 	    log.debug("paypal request URL " + get);
             switch (new HttpClient().executeMethod(get)) {
                 case 200:
