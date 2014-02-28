@@ -208,9 +208,9 @@ function doSubmissionCheckout()
     do {
         //Send user to the overviewpage & await further steps.
         sendPageAndWait("submit/checkout",{"id":workItemID});
-        if(request.getParameter("submit_cancel") != null){
+        if(cocoon.request.getParameter("submit_cancel") != null){
             //go back to overview step
-            return request.getContextPath() + "/submit-overview?workspaceID=" + workItem.getID();
+            return cocoon.request.getContextPath() + "/submit-overview?workspaceID=" + workItem.getID();
         }else{
         var redirUrl = FlowUtils.processCheckoutStep(getDSContext(), cocoon.request, cocoon.response, workItemID);
         if(redirUrl != null){
