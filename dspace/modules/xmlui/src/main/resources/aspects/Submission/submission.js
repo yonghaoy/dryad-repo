@@ -204,7 +204,14 @@ function doSubmissionCheckout()
     }else
         workItemID = "S" + workItemID;
 
-
+    if(cocoon.request.get("skip_payment")!=null)
+    {
+        var redirUrl = FlowUtils.processCheckoutStep(getDSContext(), cocoon.request, cocoon.response, workItemID);
+        if(redirUrl != null){
+            cocoon.redirectTo(redirUrl,true);
+            cocoon.exit();
+        }
+    }
     do {
         //Send user to the overviewpage & await further steps.
         sendPageAndWait("submit/checkout",{"id":workItemID});

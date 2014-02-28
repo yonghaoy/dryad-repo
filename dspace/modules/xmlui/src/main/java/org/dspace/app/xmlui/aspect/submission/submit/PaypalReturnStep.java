@@ -122,7 +122,7 @@ public class PaypalReturnStep extends AbstractStep {
                         if(type.equals("A"))
                         {
                            WorkspaceItem workspaceItem = WorkspaceItem.findByItemId(context,item.getID());
-                           String actionUrl = contextPath+"/handle/"+workspaceItem.getCollection().getHandle() +"/submit/"+knotId+".continue";
+                            String actionUrl = contextPath+"/submit-checkout?workspaceID="+workspaceItem.getID();
                             paypalService.generateUserForm(context,body,actionUrl,knotId,"A",request,item);
                             //response.sendRedirect(actionUrl);
 //                            RequestDispatcher dispatcher = request.getRequestDispatcher(actionUrl);
