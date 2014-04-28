@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+#
+# Using xmllint and the Dryad metadata schema, validate XML for all
+# objects exposed through the DataOne Member Node API.
+#
+
 import sys
 from xml.etree import ElementTree
 import requests
@@ -7,7 +12,7 @@ import xml.etree.ElementTree
 import csv
 from subprocess import check_output, check_call, CalledProcessError, STDOUT
 
-DRYAD_SERVER = 'http://dev.datadryad.org/'
+DRYAD_SERVER = 'http://www.datadryad.org/'
 DRYAD_MN_ROOT = DRYAD_SERVER + 'mn/'
 DRYAD_SCHEMA_LOCATION = DRYAD_SERVER + 'themes/Dryad/meta/schema/v3.1/'
 DRYAD_SCHEMA_FILE = 'dryad.xsd'

@@ -4,7 +4,7 @@
  2013-09-20
 =======================
 
-This directory contains a python script for validating Dryad metadata documents exposed by the DataONE MN API.
+This directory contains a python script for validating Dryad metadata documents exposed by the DataONE MN API.  It validates XML documents against the Dryad metadata schema, using xmllint.  Please see the constants in the script for specific paths/versions.
 
 Dependencies are listed in the requirements.txt file, which is the standard format for installing python packages with pip.
 
