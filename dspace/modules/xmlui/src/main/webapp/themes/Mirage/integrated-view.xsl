@@ -94,9 +94,15 @@
               <a>
                 <!-- Download Link -->
                 <xsl:attribute name="href">
-                    <xsl:value-of select="mets:FLocat/@xlink:href"/>
-                </xsl:attribute>
-
+                   <xsl:choose>
+                     <xsl:when test="mets:FLocat[@LOCTYPE='TXT']/@xlink:text">
+                       <xsl:value-of select="concat('http://',mets:FLocat[@LOCTYPE='TXT']/@xlink:title,'?format=html')"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                     <xsl:value-of select="mets:FLocat[@LOCTYPE='URL']/@xlink:href"/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+               </xsl:attribute>
                 <xsl:value-of select="mets:FLocat/@xlink:title"/>
                 <!-- File Size -->
                 <span class="bitstream-filesize">
