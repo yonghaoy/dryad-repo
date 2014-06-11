@@ -1,0 +1,31 @@
+# Data file review email message
+# Sent when a datapackage is submitted, but the associated journal 
+# article is listed as "in review". Submissions that go to the curation stage receive 
+# a similar message, submit_datapackage_confirm.
+#
+# {0}  Date
+# {1}  Number of nitifications in review
+# {2}  Number of deposits in review
+# {3}  Number of notifications of accepted publications
+# {4}  Number of deposits associted with publications
+# {5}  DOIs
+# {6}  subject
+
+Subject: {6}
+In week since the last report ({0}), Dryad has received the following:
+
+New notifications of manuscripts in review: {1}
+New deposits of data in review: {2}
+New notifications of accepted publications in this journal: {3}
+New deposits associated with publications in this journal: {4}
+
+Please find the data DOIs for new deposits below, for inclusion in the published articles.
+
+{5}
+
+We recommend that journals include a link in the article to the Dryad data as follows:
+Data available from the Dryad Digital Repository: http://doi.org/10.5061/dryad.NNNNN
+
+Dryad links the data files to the published articles; it is up to journals to link published articles to their supporting data. Journal staff and authors collaborate to ensure that data DOIs are included in the appropriate locations for the print and online versions of published articles.
+
+Thank you!
