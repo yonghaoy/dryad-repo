@@ -17,6 +17,11 @@ import java.net.InetAddress;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import java.util.Date;
+import java.util.List;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 
 import org.dspace.core.Email;
@@ -31,8 +36,6 @@ import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
 
-import java.sql.SQLException;
-import java.util.List;
 import org.apache.log4j.Logger;
 import org.dspace.content.Collection;
 import org.dspace.content.DCValue;
@@ -43,17 +46,19 @@ import org.dspace.workflow.DryadWorkflowUtils;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.core.I18nUtil;
 public class IntegrationReport{
-
+    
+    private static Logger log = Logger.getLogger(IntegrationReport.class);
     public static final String FULLNAME = "fullname";
 	public static final String METADATADIR = "metadataDir";
     public static final String INTEGRATED = "integrated";
     public static final String NOTIFY_WEEKLY = "notifyWeekly";
     public static final String ALLOW_REVIEW_WORKFLOW = "allowReviewWorkflow";
+    public static final String PUBLICATION_BLACKOUT = "publicationBlackout";
     public static final String JOURNAL_ID = "journalID";
     public static final String NUMBER_ACCEPTED = "number_accepted";
     public static final String NUMBER_IN_REVIEW = "number_in_review";
     public static final String NUMBER_DEPOSITS_IN_REVIEW = "number_deposits_in_review";
-    public static final String NUMBER_DEPOSITS_PUBLICATIONS = "number_deposits_publications";
+    public static final String NUMBER_ARCHIVED = "number_archived";
     public static final String NUMBER_HIDDEN_TO_PUBLIC = "number_hidder_to_public";
 
     public static final String ACCEPTED = "<article_status>accepted</article_status>"; 
@@ -62,7 +67,10 @@ public class IntegrationReport{
     public static final String UNDER_REVIEW = "<article_status>under review</article_status>"; 
     public static final String REVISION_IN_REVIEW = "<article_status>revision in review</article_status>"; 
  
+    public static DateUtil date_util = new DateUtil();
     public static final java.util.Map<String, Map<String, String>> journalProperties = new HashMap<String, Map<String, String>>();
+    public static final java.util.Map<String, Map<String, Map<String,String>>> article_in_review = new HashMap<String, Map<String, Map<String,String>>>();
+    public static final java.util.Map<String, Map<String, Map<String,String>>> article_archived = new HashMap<String, Map<String, Map<String,String>>>();
 	public static void main(String[] args) throws Exception{
         String journalPropFile = ConfigurationManager.getProperty("submit.journal.config");
         Properties properties = new Properties();
@@ -74,23 +82,31 @@ public class IntegrationReport{
             for (int i = 0; i < journalTypes.split(",").length; i++) {
                 String journalType = journalTypes.split(",")[i].trim();
                 String str = "journal." + journalType + ".";
+				log.debug("reading config for journal " + journalType);
+				log.debug("fullname " + properties.getProperty(str + FULLNAME));
                 if(properties.getProperty(str+INTEGRATED)!=null&&properties.getProperty(str+INTEGRATED).toLowerCase().equals("true")){
 			
 						Map<String, String> map = new HashMap<String, String>();
 						String journal_dir = properties.getProperty(str + METADATADIR);
-						//test output
-						System.out.println(properties.getProperty(str+FULLNAME));
 						map.put(FULLNAME, properties.getProperty(str + FULLNAME));
 						map.put(NOTIFY_WEEKLY, properties.getProperty(str + NOTIFY_WEEKLY));
 						map.put(JOURNAL_ID, journalType);
 						map.put(NUMBER_ACCEPTED,String.valueOf(count_accept(journal_dir)));
-						System.out.println("count_accept:" + count_accept(journal_dir));	
-					     
+					    map.put(NUMBER_ARCHIVED,String.valueOf(count_archived(myContext,properties.getProperty(str + FULLNAME))));
 						if(properties.getProperty(str+ALLOW_REVIEW_WORKFLOW)!=null){
 								if(properties.getProperty(str+ALLOW_REVIEW_WORKFLOW).equals("true")){
 
-										System.out.println("count_review:" + count_review(journal_dir));	
 										map.put(NUMBER_IN_REVIEW,String.valueOf(count_review(journal_dir)));
+					                    map.put(NUMBER_DEPOSITS_IN_REVIEW,String.valueOf(count_deposit_in_review(myContext,properties.getProperty(str + FULLNAME))));
+
+
+								}
+						}
+						if(properties.getProperty(str+PUBLICATION_BLACKOUT)!=null){
+								if(properties.getProperty(str+PUBLICATION_BLACKOUT).equals("true")){
+
+										map.put(NUMBER_HIDDEN_TO_PUBLIC,String.valueOf(count_blackout(myContext,properties.getProperty(str + FULLNAME))));
+
 
 								}
 						}
@@ -105,8 +121,8 @@ public class IntegrationReport{
 			sendEmail(myContext);
 
         }catch (IOException e) {
-           System.out.println("Error while loading journal properties");
-        }
+				log.error("Error while loading journal properties", e);
+		}
 
     }
 
@@ -114,18 +130,17 @@ public class IntegrationReport{
 	public static int count_accept(String journal_dir){
 			File journal_folder = new File(journal_dir);
 			int count_accepted = 0;
-            DateUtil date_util = new DateUtil();
 			if(journal_folder.exists()&&journal_folder.isDirectory()&&journal_folder.list().length>0){
 					File[] xmls = journal_folder.listFiles();
 					for(File xml : xmls){
-							if(!date_util.isThisWeek(xml.lastModified())){
+						    log.debug("reading xml file " + xml.getName());
+							if(date_util.isThisWeek(xml.lastModified())){
 									try{
 											BufferedReader br = new BufferedReader(new FileReader(xml.getPath()));
 											String line;
 											while ((line = br.readLine()) != null) {
 													// case-insensitive
 													if(line.trim().toLowerCase().equals(ACCEPTED)){
-															System.out.println(ACCEPTED);
 															count_accepted ++;	
 															break;
 													}
@@ -154,18 +169,16 @@ public class IntegrationReport{
 			File[] xmls = journal_folder.listFiles();
 			if(journal_folder.exists()&&journal_folder.isDirectory()&&journal_folder.list().length>0){
 					for(File xml : xmls){
+						    log.debug("reading xml file " + xml.getName());
 						
-						System.out.println("last modified: " + xml.lastModified());
-							if(!date_util.isThisWeek(xml.lastModified())){
+							if(date_util.isThisWeek(xml.lastModified())){
 									try{
 											BufferedReader br = new BufferedReader(new FileReader(xml.getPath()));
 											String line;
 											while ((line = br.readLine()) != null) {
-													System.out.println(line.trim().toLowerCase());
 													// case-insensitive
 													String line_str = line.trim().toLowerCase();
 													if(line_str.equals(SUBMITTED) || line_str.equals(IN_REVIEW) ||line_str.equals(UNDER_REVIEW) || line_str.equals(REVISION_IN_REVIEW)){
-															System.out.println("sub");
 															count_review++;	
 															break;
 													}
@@ -185,50 +198,9 @@ public class IntegrationReport{
 		    return count_review; 	
 
     }
-	public static int count_deposit_publications(Context myContext, String journal_name) throws SQLException{
-			int count_deposit_publication = 0;
-			TableRowIterator rows = DatabaseManager.queryTable(myContext, "shoppingcart", "SELECT * FROM shoppingcart WHERE journal = ' "+ journal_name + "'");
-			try{
-					List<TableRow> propertyRows = rows.toList();
-					System.out.println(propertyRows.size());
-					for (int i = 0; i < propertyRows.size(); i++)
-					{
-							DateUtil date_util = new DateUtil();
-							TableRow row = (TableRow) propertyRows.get(i);
-							System.out.println(row.getDateColumn("payment_date"));
-							System.out.println(row.getStringColumn("status"));
-							if(!date_util.isThisWeek(row.getDateColumn("payment_date").getTime())){
-								count_deposit_publication++;
-							}
-					}
-
-
-			}
-			finally{
-					if (rows != null)
-					{
-							rows.close();
-					}
-			}
-			return count_deposit_publication;		
-	}
 	public static void sendEmail(Context myContext) throws Exception{
 			for(Map.Entry<String,Map<String,String>> journal : journalProperties.entrySet()){
 					Map<String,String> journal_entry = journal.getValue();
-					String host = ConfigurationManager.getProperty("dspace.hostname");
-					String basicHost = "";
-					if ("localhost".equals(host) || "127.0.0.1".equals(host)
-									|| host.equals(InetAddress.getLocalHost().getHostAddress()))
-					{
-							basicHost = host;
-					}
-					else
-					{
-							// cut off all but the hostname, to cover cases where more than one URL
-							// arrives at the installation; e.g. presence or absence of "www"
-							int lastDot = host.lastIndexOf('.');
-							basicHost = host.substring(host.substring(0, lastDot).lastIndexOf('.'));
-					}
 	
 				Email email = ConfigurationManager.getEmail(I18nUtil.getEmailFilename(myContext.getCurrentLocale(), "integration_report"));;
 				
@@ -251,9 +223,53 @@ public class IntegrationReport{
 
 				//set content
 				email.addArgument(journal_entry.get(NUMBER_IN_REVIEW));
-				email.addArgument("test");
-				email.addArgument("test");
-				email.addArgument("test");
+				email.addArgument(journal_entry.get(NUMBER_DEPOSITS_IN_REVIEW));
+				email.addArgument(journal_entry.get(NUMBER_ACCEPTED));
+				email.addArgument(journal_entry.get(NUMBER_ARCHIVED));
+				email.addArgument(journal_entry.get(NUMBER_HIDDEN_TO_PUBLIC));
+				
+				//doi and manuscript number for articles in review:
+				String article_info_review = "";
+
+				for(Map.Entry<String,Map<String,Map<String,String>>> articles_info_set : article_in_review.entrySet()){
+						if(articles_info_set.getKey().equals(journal_entry.get(FULLNAME))){
+								log.info("read article info from journal " + journal_entry.get(FULLNAME) + "\n");
+								for(Map.Entry<String,Map<String,String>> article_info : articles_info_set.getValue().entrySet()){
+										
+										Map<String,String> single_article_info = article_info.getValue();
+
+										article_info_review += single_article_info.get("author") + "   ";
+										article_info_review += single_article_info.get("manu_number") + "   ";
+										article_info_review += single_article_info.get("doi") + "   \n";
+										
+								}
+						
+						}
+				
+				
+				}
+				email.addArgument(article_info_review);
+				String article_info_archived = "";
+
+				for(Map.Entry<String,Map<String,Map<String,String>>> articles_info_set : article_archived.entrySet()){
+						if(articles_info_set.getKey().equals(journal_entry.get(FULLNAME))){
+								log.info("read article info from journal " + journal_entry.get(FULLNAME) + "\n");
+								for(Map.Entry<String,Map<String,String>> article_info : articles_info_set.getValue().entrySet()){
+										
+										Map<String,String> single_article_info = article_info.getValue();
+
+										article_info_review += single_article_info.get("author") + "   ";
+										article_info_review += single_article_info.get("manu_number") + "   ";
+										article_info_review += single_article_info.get("doi") + "   \n";
+										
+								}
+						
+						}
+				
+				
+				}
+
+				email.addArgument(article_info_archived);
 				email.addArgument(subject);
 
 				try
@@ -262,16 +278,202 @@ public class IntegrationReport{
 				}
 				catch (MessagingException me)
 				{
-						System.err.println("\nError sending email:");
-						System.err.println(" - Error: " + me);
-						System.err.println("\nPlease see the DSpace documentation for assistance.\n");
-						System.err.println("\n");
+						log.error("\nError sending email:");
+						log.error(" - Error: " ,  me);
 						System.exit(1);
 				}
-				System.out.println("\nEmail sent successfully!\n");
+				log.info("\nEmail sent successfully!\n" + subject);
 
 		}
 
+
+	}
+
+	public static int count_archived(Context myContext, String journal_name) throws Exception{
+			int count_archived = 0;
+			TableRowIterator rows = DatabaseManager.queryTable(myContext, "shoppingcart", "SELECT * FROM shoppingcart WHERE journal = '"+ journal_name + "';");
+			log.info(LogManager.getHeader(myContext, "select journal name ", " journal_name " + journal_name));
+			try{
+				    Map<String, Map<String,String>> article_map = new HashMap<String, Map<String,String>>();
+					List<TableRow> propertyRows = rows.toList();
+					for (int i = 0; i < propertyRows.size(); i++)
+					{
+							TableRow row = (TableRow) propertyRows.get(i);
+							if(row.getDateColumn("payment_date")!=null){
+								    log.info("payment_date: " + row.getDateColumn("payment_date"));
+									long pay_date = row.getDateColumn("payment_date").getTime();
+									if(date_util.isThisWeek(pay_date)){
+											Map<String, String> map = new HashMap<String, String>();
+											int item_id = row.getIntColumn("item");
+											count_archived++;
+											String key = get_doi(myContext,item_id);
+											map.put("author",get_author(myContext,item_id));
+											map.put("doi",key);
+											map.put("manu_number",get_author(myContext,item_id));
+											if(key!=null)
+													article_map.put(key,map);	
+									}
+							}
+					}
+                    article_archived.put(journal_name,article_map);                 
+
+			}
+			finally{
+					if (rows != null)
+					{
+							rows.close();
+					}
+			}
+		    return count_archived;		
+	}
+	public static int count_deposit_in_review(Context myContext, String journal_full_name) throws Exception{
+				
+		    int count_articles_in_review = 0;
+			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE item_id in (SELECT item_id FROM METADATAVALUE WHERE text_value='"+journal_full_name + "' and metadata_field_id=97) and text_value like '%start=Step: requiresReviewStep%';");
+			try{
+					List<TableRow> propertyRows =item_rows.toList();
+				    Map<String, Map<String,String>> article_map = new HashMap<String, Map<String,String>>();
+					for (int i = 0; i < propertyRows.size(); i++)
+					{
+							TableRow row = (TableRow) propertyRows.get(i);
+							String text_value_str =row.getStringColumn("text_value");
+							int start_index = text_value_str.indexOf("on 20");
+							int end_index = text_value_str.indexOf(" workflow");
+							String date = text_value_str.substring(start_index+3,end_index);
+							DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+							Date format_date;
+							try {
+									format_date = df.parse(date);
+									long date_long = format_date.getTime();
+									if(date_util.isThisWeek(date_long)){
+											int item_id = row.getIntColumn("item_id");
+											Map<String, String> map = new HashMap<String, String>();
+											count_articles_in_review ++;
+											String key = get_doi(myContext,item_id);
+											map.put("author",get_author(myContext,item_id));
+											map.put("doi",key);
+											map.put("manu_number",get_author(myContext,item_id));
+											if(key!=null)
+													article_map.put(key,map);	
+									}
+							} catch (ParseException e) {
+									e.printStackTrace();
+							}	
+					}
+                    article_in_review.put(journal_full_name,article_map);                 
+
+
+			}
+			finally{
+					if (item_rows != null)
+					{
+							item_rows.close();
+					}
+			}
+            return count_articles_in_review;
+
+	}
+	public static int count_blackout(Context myContext, String journal_full_name) throws Exception{
+				
+		    int count_articles_blackout = 0;
+			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE item_id in (SELECT item_id FROM METADATAVALUE WHERE text_value='"+journal_full_name + "' and metadata_field_id=97) and text_value like '%action:afterPublicationAction Approved for entry into archive%';");
+			try{
+					List<TableRow> propertyRows =item_rows.toList();
+					for (int i = 0; i < propertyRows.size(); i++)
+					{
+							TableRow row = (TableRow) propertyRows.get(i);
+							String text_value_str =row.getStringColumn("text_value");
+							int start_index = text_value_str.indexOf("on 20");
+							int end_index = text_value_str.indexOf(" workflow");
+							String date = text_value_str.substring(start_index+3,end_index);
+							DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+							Date format_date;
+							try {
+									format_date = df.parse(date);
+									long date_long = format_date.getTime();
+									if(date_util.isThisWeek(date_long)){
+											int item_id = row.getIntColumn("item_id");
+											Map<String, String> map = new HashMap<String, String>();
+											count_articles_blackout ++;
+									}
+							} catch (ParseException e) {
+									e.printStackTrace();
+							}	
+					}
+
+
+			}
+			finally{
+					if (item_rows != null)
+					{
+							item_rows.close();
+					}
+			}
+            return count_articles_blackout;
+
+	}
+	public static String get_doi(Context myContext, int item_id) throws Exception{
+			TableRowIterator rows = DatabaseManager.queryTable(myContext,"METADATAVALUE","SELECT * FROM METADATAVALUE where metadata_field_id=17 and item_id=" + item_id +" limit 1");
+			String text_value_str = "the doi is not available";
+			try{
+					List<TableRow> propertyRows = rows.toList();
+					for(int i = 0; i < propertyRows.size(); i++){
+
+							TableRow row = (TableRow) propertyRows.get(i);
+							text_value_str = row.getStringColumn("text_value");
+					}
+
+
+			}
+			finally{
+					if(rows!=null){
+							rows.close();
+					}
+			}
+			return text_value_str;
+
+	}
+	public static String get_manu_number(Context myContext, int item_id) throws Exception{
+			TableRowIterator rows = DatabaseManager.queryTable(myContext,"METADATAVALUE","SELECT * FROM METADATAVALUE where metadata_field_id=74 and item_id=" + item_id +" limit 1");
+			String text_value_str = "the manucsript number is not available";
+			try{
+					List<TableRow> propertyRows = rows.toList();
+					for(int i = 0; i < propertyRows.size(); i++){
+
+							TableRow row = (TableRow) propertyRows.get(i);
+							text_value_str =row.getStringColumn("text_value");
+					}
+
+
+			}
+			finally{
+					if(rows!=null){
+							rows.close();
+					}
+			}
+
+			return text_value_str;
+	}
+
+	public static String get_author(Context myContext, int item_id) throws Exception{
+			TableRowIterator rows = DatabaseManager.queryTable(myContext,"EPERSON","select * FROM eperson WHERE eperson_id=(select submitter_id from ITEM WHERE item_id="+item_id+");");
+			String author_last_name = "the author is not available";
+			try{
+					List<TableRow> propertyRows = rows.toList();
+					for(int i = 0; i < propertyRows.size(); i++){
+
+							TableRow row = (TableRow) propertyRows.get(i);
+							author_last_name = row.getStringColumn("lastname");
+					}
+
+
+			}
+			finally{
+					if(rows!=null){
+							rows.close();
+					}
+			}
+			return author_last_name;
 
 	}
 }
