@@ -1,0 +1,30 @@
+# {0}  Date
+# {1}  Number of nitifications in review
+# {2}  Number of deposits in review
+# {3}  Number of notifications of accepted publications
+# {4}  Number of deposits associted with publications
+# {5}  DOIs
+# {6}  subject
+
+Subject: {8}
+In week since the last report ({0}), Dryad has received the following:
+
+{1}
+{2}
+New notifications of accepted publications in this journal: {3}
+New deposits associated with publications in this journal: {4}
+
+{5}
+
+Please find the data DOIs for new deposits below, for inclusion in the published articles.
+
+{6}
+
+{7}
+
+We recommend that journals include a link in the article to the Dryad data as follows:
+Data available from the Dryad Digital Repository: http://doi.org/10.5061/dryad.NNNNN
+
+Dryad links the data files to the published articles; it is up to journals to link published articles to their supporting data. Journal staff and authors collaborate to ensure that data DOIs are included in the appropriate locations for the print and online versions of published articles.
+
+Thank you!
