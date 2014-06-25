@@ -328,6 +328,7 @@ public class Email
             // If a character set has been specified, or a default exists
             if (charset != null)
             {
+<<<<<<< HEAD
 				message.setHeader("Content-Type","text/html");
                 message.setContent(fullMessage, charset);
             }
@@ -336,6 +337,13 @@ public class Email
 				message.setHeader("Content-Type","text/html");
                 message.setContent(fullMessage,"text/html");
 
+=======
+                message.setText(fullMessage, charset);
+            }
+            else
+            {
+                message.setText(fullMessage);
+>>>>>>> 6e7ac6d14ea87f1ce28aa76a3a49f87cada1fa19
             }
         }
         else

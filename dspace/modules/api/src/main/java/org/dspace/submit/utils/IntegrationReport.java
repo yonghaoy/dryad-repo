@@ -206,6 +206,7 @@ public class IntegrationReport{
 				
 				//add recipient
 				String recipents = journal_entry.get(NOTIFY_WEEKLY);
+<<<<<<< HEAD
 				if(recipents!=null){
 				
 						if(recipents.contains(",")){
@@ -218,6 +219,17 @@ public class IntegrationReport{
 								email.addRecipient(recipents.trim());
 						}
 				}
+=======
+				if(recipents.contains(",")){
+						String[] recipent_arr = recipents.split(",");
+						for(int i = 0; i < recipent_arr.length;i++){
+								email.addRecipient(recipent_arr[i].trim());
+						}
+				}
+				else{
+						email.addRecipient(recipents.trim());
+				}
+>>>>>>> 6e7ac6d14ea87f1ce28aa76a3a49f87cada1fa19
 				
 				//set subject
 				String subject = "Dryad/" + journal_entry.get(FULLNAME) + " integration report";
@@ -225,6 +237,7 @@ public class IntegrationReport{
 				email.addArgument(new Date());
 
 				//set content
+<<<<<<< HEAD
 				if(journal_entry.get(NUMBER_IN_REVIEW)!=null){
 						email.addArgument("New notifications of manuscripts in review: " + journal_entry.get(NUMBER_IN_REVIEW));
 				}
@@ -269,6 +282,33 @@ public class IntegrationReport{
 
 
 						}
+=======
+				email.addArgument(journal_entry.get(NUMBER_IN_REVIEW));
+				email.addArgument(journal_entry.get(NUMBER_DEPOSITS_IN_REVIEW));
+				email.addArgument(journal_entry.get(NUMBER_ACCEPTED));
+				email.addArgument(journal_entry.get(NUMBER_ARCHIVED));
+				email.addArgument(journal_entry.get(NUMBER_HIDDEN_TO_PUBLIC));
+				
+				//doi and manuscript number for articles in review:
+				String article_info_review = "";
+
+				for(Map.Entry<String,Map<String,Map<String,String>>> articles_info_set : article_in_review.entrySet()){
+						if(articles_info_set.getKey().equals(journal_entry.get(FULLNAME))){
+								log.info("read article info from journal " + journal_entry.get(FULLNAME) + "\n");
+								for(Map.Entry<String,Map<String,String>> article_info : articles_info_set.getValue().entrySet()){
+										
+										Map<String,String> single_article_info = article_info.getValue();
+
+										article_info_review += single_article_info.get("author") + "   ";
+										article_info_review += single_article_info.get("manu_number") + "   ";
+										article_info_review += single_article_info.get("doi") + "   \n";
+										
+								}
+						
+						}
+				
+				
+>>>>>>> 6e7ac6d14ea87f1ce28aa76a3a49f87cada1fa19
 				}
 				email.addArgument(article_info_review);
 				String article_info_archived = "";
@@ -276,6 +316,7 @@ public class IntegrationReport{
 				for(Map.Entry<String,Map<String,Map<String,String>>> articles_info_set : article_archived.entrySet()){
 						if(articles_info_set.getKey().equals(journal_entry.get(FULLNAME))){
 								log.info("read article info from journal " + journal_entry.get(FULLNAME) + "\n");
+<<<<<<< HEAD
 								article_info_archived += "<b>Archived</b>\n";
 								article_info_archived += "<table>";
 								for(Map.Entry<String,Map<String,String>> article_info : articles_info_set.getValue().entrySet()){
@@ -287,6 +328,17 @@ public class IntegrationReport{
 										
 								}
 								article_info_archived +="</table>";
+=======
+								for(Map.Entry<String,Map<String,String>> article_info : articles_info_set.getValue().entrySet()){
+										
+										Map<String,String> single_article_info = article_info.getValue();
+
+										article_info_review += single_article_info.get("author") + "   ";
+										article_info_review += single_article_info.get("manu_number") + "   ";
+										article_info_review += single_article_info.get("doi") + "   \n";
+										
+								}
+>>>>>>> 6e7ac6d14ea87f1ce28aa76a3a49f87cada1fa19
 						
 						}
 				
@@ -333,7 +385,11 @@ public class IntegrationReport{
 											String key = get_doi(myContext,item_id);
 											map.put("author",get_author(myContext,item_id));
 											map.put("doi",key);
+<<<<<<< HEAD
 											map.put("manu_number",get_manu_number(myContext,item_id));
+=======
+											map.put("manu_number",get_author(myContext,item_id));
+>>>>>>> 6e7ac6d14ea87f1ce28aa76a3a49f87cada1fa19
 											if(key!=null)
 													article_map.put(key,map);	
 									}
@@ -376,7 +432,11 @@ public class IntegrationReport{
 											String key = get_doi(myContext,item_id);
 											map.put("author",get_author(myContext,item_id));
 											map.put("doi",key);
+<<<<<<< HEAD
 											map.put("manu_number",get_manu_number(myContext,item_id));
+=======
+											map.put("manu_number",get_author(myContext,item_id));
+>>>>>>> 6e7ac6d14ea87f1ce28aa76a3a49f87cada1fa19
 											if(key!=null)
 													article_map.put(key,map);	
 									}
@@ -408,7 +468,11 @@ public class IntegrationReport{
 							TableRow row = (TableRow) propertyRows.get(i);
 							String text_value_str =row.getStringColumn("text_value");
 							int start_index = text_value_str.indexOf("on 20");
+<<<<<<< HEAD
 							int end_index = text_value_str.indexOf(" (GMT)");
+=======
+							int end_index = text_value_str.indexOf(" workflow");
+>>>>>>> 6e7ac6d14ea87f1ce28aa76a3a49f87cada1fa19
 							String date = text_value_str.substring(start_index+3,end_index);
 							DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 							Date format_date;
