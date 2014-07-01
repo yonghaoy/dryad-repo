@@ -326,8 +326,8 @@ public class Email
         if (attachments.isEmpty())
         {
             // If a character set has been specified, or a default exists
-            if (charset != null)
-            {
+           /* if (charset != null)
+             {
 				message.setHeader("Content-Type","text/html");
                 message.setContent(fullMessage, charset);
             }
@@ -336,7 +336,8 @@ public class Email
 				message.setHeader("Content-Type","text/html");
                 message.setContent(fullMessage,"text/html");
 
-            }
+            }*/
+            message.setContent(fullMessage,"text/html");
         }
         else
         {

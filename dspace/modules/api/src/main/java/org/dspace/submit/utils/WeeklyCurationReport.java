@@ -57,13 +57,16 @@ public class WeeklyCurationReport{
     public static int NUMBER_HIDDEN_TO_PUBLIC;
     public static int NUMBER_INTE_BLACKOUT;
     public static int NUMBER_NON_INTE_BLACKOUT;
-
+    public static int NUMBER_INTE_DEPOSITS;
+    public static int NUMBER_NON_INTE_DEPOSITS;
     public static DateUtil date_util = new DateUtil();
     public static final java.util.Map<String, Map<String, String>> inte_journalProperties = new HashMap<String, Map<String, String>>();
     public static final java.util.Map<String, Integer> non_inte_journal_archived = new HashMap<String, Integer>();
     public static final java.util.Map<String, Integer> non_inte_journal_blackout = new HashMap<String, Integer>();
     public static final java.util.Map<String, Integer> journal_hidden_to_public = new HashMap<String, Integer>();
+    public static final java.util.Map<Integer,String> article_archived= new HashMap<Integer,String>();
 	public static void main(String[] args) throws Exception{
+
         String journalPropFile = ConfigurationManager.getProperty("submit.journal.config");
         Properties properties = new Properties();
 		Context myContext = new Context();
@@ -73,6 +76,8 @@ public class WeeklyCurationReport{
 		NUMBER_HIDDEN_TO_PUBLIC = 0;
 		NUMBER_INTE_BLACKOUT = 0;
 		NUMBER_NON_INTE_BLACKOUT = 0;
+        NUMBER_INTE_DEPOSITS = 0;
+        NUMBER_NON_INTE_DEPOSITS = 0;
         try {
             properties.load(new InputStreamReader(new FileInputStream(journalPropFile), "UTF-8"));
             String journalTypes = properties.getProperty("journal.order");
@@ -94,7 +99,12 @@ public class WeeklyCurationReport{
 				}
 
             }
-
+            count_archived(myContext);
+            count_blackout(myContext);
+            count_in_review(myContext);
+            count_hidden_to_public(myContext);
+            NUMBER_INTE_DEPOSITS = NUMBER_INTE_ARCHIVED + NUMBER_INTE_BLACKOUT;
+            NUMBER_NON_INTE_DEPOSITS = NUMBER_NON_INTE_ARCHIVED + NUMBER_NON_INTE_BLACKOUT;
 
 			sendEmail(myContext);
 
@@ -104,35 +114,41 @@ public class WeeklyCurationReport{
 
     }
 
-	public static void count_archived(Context myContextx) throws Exception{
-				
-			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "shoppingcart", "SELECT * FROM shoppingcart;");
+	public static void count_archived(Context myContext) throws Exception{
+			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE text_value like '%Made available in DSpace%';");
 			try{
-					List<TableRow> propertyRows = item_rows.toList();
+					List<TableRow> propertyRows =item_rows.toList();
 					for (int i = 0; i < propertyRows.size(); i++)
 					{
 							TableRow row = (TableRow) propertyRows.get(i);
-							if(row.getDateColumn("payment_date")!=null){
-								    log.info("payment_date: " + row.getDateColumn("payment_date"));
-									long pay_date = row.getDateColumn("payment_date").getTime();
-									if(date_util.isThisWeek(pay_date)){
+							String text_value_str =row.getStringColumn("text_value");
+							int start_index = text_value_str.indexOf("on 20");
+							int end_index = text_value_str.indexOf(" (GMT)");
+							String date = text_value_str.substring(start_index+3,end_index);
+							DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+							Date format_date;
+							try {
+									format_date = df.parse(date);
+									long date_long = format_date.getTime();
+									if(date_util.isThisWeek(date_long)){
 											int item_id = row.getIntColumn("item_id");
-											process_archived_item(myContext, item_id);
+											process_archived(myContext,item_id);
 									}
-							}
+							} catch (ParseException e) {
+									e.printStackTrace();
+							}	
 					}
-                    article_archived.put(journal_name,article_map);                 
+
 
 			}
 			finally{
-					if (rows != null)
+					if (item_rows != null)
 					{
-							rows.close();
+							item_rows.close();
 					}
 			}
-	}
-
-	public static void process_archived(Context myContext,int item_id){
+    }
+	public static void process_archived(Context myContext,int item_id) throws Exception{
 		
 			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE metadata_field_id=97 and item_id=" + item_id + ";");
 			try{
@@ -140,6 +156,7 @@ public class WeeklyCurationReport{
 				for(int i = 0; i < propertyRows.size(); i++){
 						TableRow row = (TableRow) propertyRows.get(i);
 						String journal_name = row.getStringColumn("text_value");
+                        article_archived.put(item_id,journal_name);
 						if(inte_journalProperties.containsKey(journal_name)){
 								NUMBER_INTE_ARCHIVED++;
 						}
@@ -166,7 +183,7 @@ public class WeeklyCurationReport{
 	
 	}
 
-	public static void count_hidden_to_public(Context myContextx) throws Exception{
+	public static void count_hidden_to_public(Context myContext) throws Exception{
 				
 			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE text_value like '%action:afterPublicationAction Approved for entry into archive%';");
 			try{
@@ -201,11 +218,10 @@ public class WeeklyCurationReport{
 							item_rows.close();
 					}
 			}
-            return count_articles_blackout;
 
 	}
 
-	public static void process_hidden_to_public(Context myContext,int item_id){
+	public static void process_hidden_to_public(Context myContext,int item_id) throws Exception{
 		
 			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE metadata_field_id=97 and item_id=" + item_id + ";");
 			try{
@@ -288,7 +304,9 @@ public class WeeklyCurationReport{
 									long date_long = format_date.getTime();
 									if(date_util.isThisWeek(date_long)){
 											int item_id = row.getIntColumn("item_id");
-											process_blackout(myContext,item_id);
+                                                if(!article_archived.containsKey(item_id)){
+                                                    process_blackout(myContext,item_id);
+                                                }
 									}
 							} catch (ParseException e) {
 									e.printStackTrace();
@@ -306,7 +324,7 @@ public class WeeklyCurationReport{
 
 	}
 
-	public static void process_blackout(Context myContext,int item_id){
+	public static void process_blackout(Context myContext,int item_id) throws Exception{
 	
 	
 			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE metadata_field_id=97 and item_id=" + item_id + ";");
@@ -342,7 +360,7 @@ public class WeeklyCurationReport{
 	
 	}
 
-	public static boolean is_new_journal(Context myContext, String journal_name){
+	public static boolean is_new_journal(Context myContext, String journal_name) throws Exception{
 		
 			boolean is_new = true;
 
@@ -392,8 +410,67 @@ public class WeeklyCurationReport{
 				String subject = "Weekly Curation Summary";
 
 				email.addArgument(new Date());
+                email.addArgument(NUMBER_INTE_DEPOSITS);
+                email.addArgument(NUMBER_INTE_BLACKOUT);
+                email.addArgument(NUMBER_NON_INTE_DEPOSITS);
+                email.addArgument(NUMBER_NON_INTE_BLACKOUT);
+                email.addArgument(NUMBER_IN_REVIEW);
+                email.addArgument(NUMBER_HIDDEN_TO_PUBLIC);
 
-				//set content
+                String non_inte_to_blackout = "";
+                for(Map.Entry<String,Integer> entry: non_inte_journal_blackout.entrySet()){
+                    String key = entry.getKey();
+                    if(is_new_journal(myContext,key)){
+                        non_inte_to_blackout +="<p style=\"color:#FF69B4\">";
+                    }
+                    else{
+                        non_inte_to_blackout +="<p>";
+                    }
+                    non_inte_to_blackout +=key;
+                    if(entry.getValue()!=1){
+                        String sub_number = Integer.toString(entry.getValue());
+                        String add_info = "(" + sub_number + " submissions ) ";
+                        non_inte_to_blackout += add_info;
+                    }
+                    non_inte_to_blackout += "</p>";
+                }
+                email.addArgument(non_inte_to_blackout);
+                String non_inte_to_archived = "";
+                for(Map.Entry<String,Integer> entry: non_inte_journal_archived.entrySet()){
+                    String key = entry.getKey();
+                    if(is_new_journal(myContext,key)){
+                        non_inte_to_archived +="<p style=\"color:#FF69B4\">";
+                    }
+                    else{
+                        non_inte_to_archived +="<p>";
+                    }
+                    non_inte_to_archived +=key;
+                    if(entry.getValue()!=1){
+                        String sub_number = Integer.toString(entry.getValue());
+                        String add_info = "(" + sub_number + " submissions ) ";
+                        non_inte_to_archived += add_info;
+                    }
+                    non_inte_to_archived += "</p>";
+                }
+                email.addArgument(non_inte_to_archived);
+                String hidden_to_public = "";
+                for(Map.Entry<String,Integer> entry: journal_hidden_to_public.entrySet()){
+                    String key = entry.getKey();
+                    if(is_new_journal(myContext,key)){
+                        hidden_to_public +="<p style=\"color:#FF69B4\">";
+                    }
+                    else{
+                        hidden_to_public +="<p>";
+                    }
+                    hidden_to_public +=key;
+                    if(entry.getValue()!=1){
+                        String sub_number = Integer.toString(entry.getValue());
+                        String add_info = "(" + sub_number + " submissions ) ";
+                        hidden_to_public += add_info;
+                    }
+                    hidden_to_public += "</p>";
+                }
+                email.addArgument(hidden_to_public);
 				try
 				{
 						email.send();
@@ -408,7 +485,5 @@ public class WeeklyCurationReport{
 
 		}
 		
-
-	}
 
 }
