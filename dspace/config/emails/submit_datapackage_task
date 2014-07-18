@@ -12,16 +12,18 @@
 # {4}  link to 'my DSpace' page
 #
 Subject: Dryad: New data package ready for curation
-
-A new data package has been submitted to Dryad:
-Package title:        {0}
-Data file(s):
-{1}
-
+<p>
+A new data package has been submitted to Dryad:<br>
+Package title:        {0}<br>
+Data file(s):<br>
+{1}<br>
+</p>
+<p>
 Submitted by: {2}
-
+</p>
+<p>
 {3}
-
-To claim this task, please visit your "My Dryad"
+</p>
+To claim this task, please visit your "My Dryad"<br>
 page:  {4}
 

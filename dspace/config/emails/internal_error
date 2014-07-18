@@ -11,14 +11,17 @@
 # See org.dspace.core.Email for information on the format of this file.
 #
 Subject: Dryad: Internal Server Error
-An internal server error occurred on {0}:
-
-Date:       {1}
-Session ID: {2}
-User:       {5}
-IP address: {6}
-
+<p>An internal server error occurred on {0}</p>:
+<p>
+Date:       {1}<br>
+Session ID: {2}<br>
+User:       {5}<br>
+IP address: {6}<br>
+</p>
+<p>
 {3}
-
-Exception:
+</p>
+Exception:<br>
+<p>
 {4}
+</p>

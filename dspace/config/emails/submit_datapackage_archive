@@ -12,34 +12,41 @@
 #
 Subject: Dryad submission approved {1}
 
-Dear {4},
-
+Dear {4},<br>
+<p>
 Thank you for your submission to the Dryad repository. Your data package has been approved and assigned a unique identifier, called a DOI.
-
-Title: {0}
-Data identifier: {1}
-Journal manuscript number: {5}
-
+</p>
+<p>
+Title: {0}<br>
+Data identifier: {1}<br>
+Journal manuscript number: {5}<br>
+</p>
+<p>
 If your article has been published and you did not request a data embargo, your data will now be publicly available.  If your article is still being prepared for publication, we recommend you add text specifying the location of the data, for example:
-
+<br>
 Data available from the Dryad Digital Repository: {1}
+<br>
+</p>
+<p>
+Please consult the journal instructions for guidance on how to cite the data package in the manuscript. <br> 
+Your journal may follow the CrossRef recommendation that the data package be cited in the article Reference list.<br>  
+If so, the citation should include the Dryad package DOI, e.g.: <br>
 
-Please consult the journal instructions for guidance on how to cite the data package in the manuscript.  
-Your journal may follow the CrossRef recommendation that the data package be cited in the article Reference list.  
-If so, the citation should include the Dryad package DOI, e.g.: 
-
-Author(s), Year, Data from [title]. Dryad Digital Repository {1}
-
+Author(s), Year, Data from [title]. Dryad Digital Repository {1}<br>
+</p>
+<p>
 To view your Dryad entry, you may visit the repository at http://datadryad.org
-
-Check out the information for depositors at http://datadryad.org/pages/faq
-- How do I refer to my Dryad data in my article?
-- How can I see how often my data package is viewed and downloaded?
-- How can I add my data package to a Data section on my CV?
-- If my data files are embargoed, when will they be released?
-- and more!
-
+</p>
+<p>
+Check out the information for depositors at http://datadryad.org/pages/faq<br>
+- How do I refer to my Dryad data in my article?<br>
+- How can I see how often my data package is viewed and downloaded?<br>
+- How can I add my data package to a Data section on my CV?<br>
+- If my data files are embargoed, when will they be released?<br>
+- and more!<br>
+</p>
+<p>
 Thanks again for taking this important step to preserve and share your research data. We welcome your feedback! Contact us at help@datadryad.org.
-
-The Dryad Team
+</p>
+The Dryad Team<br>
 datadryad.org 

@@ -6,13 +6,13 @@
 # See org.dspace.core.Email for information on the format of this file.
 #
 Subject: Dryad - Item export requested is ready for download
-The item export you requested from the repository is now ready for download.
-
-You may download the compressed file using the following link:
+<p>The item export you requested from the repository is now ready for download</p>.
+<p>
+You may download the compressed file using the following link:<br>
 {0}
+</p>
+<p>This file will remain available for at least {1} hours. </p> 
 
-This file will remain available for at least {1} hours.  
-
-
+<br>
 The Dryad Team
 

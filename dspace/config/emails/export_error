@@ -7,13 +7,16 @@
 # See org.dspace.core.Email for information on the format of this file.
 #
 Subject: Dryad - The item export you requested was not completed.
+<p>
 The item export you requested was not completed, due to the following reason:
- {0}
+<br>
+{0}
+</p>
+<p>For more information you may contact your system administrator:
+<br>
+{1}
 
-For more information you may contact your system administrator:
- {1}
-
-
-
+<p>
+<br>
 The Dryad Team
 

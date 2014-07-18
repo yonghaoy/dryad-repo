@@ -6,21 +6,22 @@
 #
 Subject: Dryad: Your Payment Was Rejected
 
-You submitted the following data package to Dryad: 
+<p>You submitted the following data package to Dryad:<br> 
 {0}
+</p>
+Submitter: {1}<br>
 
-Submitter: {1}
+Shopping Cart Contents<br>
 
-Shopping Cart Contents
+{2}<br>
 
-{2}
-
-The payment information that you previously entered is no longer
+<p>The payment information that you previously entered is no longer
 valid. Please login to Dryad and provide current payment information.
-
+</p>
+<p>
 You can access the in-progress submission from your "My Submissions"
-page: 
-http://datadryad.org/submissions
-
-The Dryad Team
-datadryad.org
+page:<br> 
+http://datadryad.org/submissions<br>
+</p>
+The Dryad Team<br>
+datadryad.org<br>

@@ -5,8 +5,9 @@
 # See org.dspace.core.Email for information on the format of this file.
 #
 Subject: Dryad Subscription
-New items are available in the collections you have subscribed to:
+<p>
+New items are available in the collections you have subscribed to:<br>
 
 {0}
-
+<br>
 The Dryad Team

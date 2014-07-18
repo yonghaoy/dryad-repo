@@ -5,15 +5,15 @@
 # {2}  Shopping Cart Contents
 #
 Subject: Dryad: Waived Payment Receipt
-
+<p>
 This is your receipt for data archiving with Dryad.
-
-Dryad submission: {0}
-Submitter: {1}
-
-Shopping Cart Contents
+</p>
+<p>Dryad submission: {0}<br>
+Submitter: {1}<br>
+</p>
+Shopping Cart Contents<br>
 
 {2}
-
-The Dryad Team
+<br>
+The Dryad Team<br>
 datadryad.org

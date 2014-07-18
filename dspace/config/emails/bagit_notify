@@ -7,15 +7,15 @@
 #
 Subject: Your Dryad Submission to {0}
 
-Thank you for your recent deposit to the Dryad repository. During your
+<p>Thank you for your recent deposit to the Dryad repository. During your
 submission, you chose to also automatically upload your data to {0}.
-
-This upload has been completed.  To finish the {0} submission you
+</p>
+<p>This upload has been completed.  To finish the {0} submission you
 will need to log in to {0} and complete the process.  You can do
 this by visiting:
-
+</p><p>
 {1}
-
-Thanks.
+</p>
+Thanks.<br>
 
 Dryad

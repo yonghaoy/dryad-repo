@@ -7,24 +7,35 @@
 # {6}  subject
 
 Subject: {8}
+<p>
 In week since the last report ({0}), Dryad has received the following:
-
-{1}
-{2}
-New notifications of accepted publications in this journal: {3}
-New deposits associated with publications in this journal: {4}
+</p>
+<p>
+{1}<br>
+{2}<br>
+</p>
+<p>
+New notifications of accepted publications in this journal: {3}<br>
+New deposits associated with publications in this journal: {4}<br>
+</p>
+<p>
 
 {5}
-
+</p>
+<p>
 Please find the data DOIs for new deposits below, for inclusion in the published articles.
-
+</p>
+<p>
 {6}
-
+</p>
+<p>
 {7}
-
-We recommend that journals include a link in the article to the Dryad data as follows:
+</p>
+<p>
+We recommend that journals include a link in the article to the Dryad data as follows:<br>
 Data available from the Dryad Digital Repository: http://doi.org/10.5061/dryad.NNNNN
-
+</p>
+<p>
 Dryad links the data files to the published articles; it is up to journals to link published articles to their supporting data. Journal staff and authors collaborate to ensure that data DOIs are included in the appropriate locations for the print and online versions of published articles.
-
+</p>
 Thank you!

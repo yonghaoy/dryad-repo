@@ -7,17 +7,21 @@
 # {4}  Link to 'My DSpace' page
 #
 Subject: DSpace: Submission Rejected
-
+<p>
 You submitted: {0}
-
+</p>
+<p>
 To collection: {1}
-
+</p>
+<p>
 Your submission has been rejected by {2}
-with the following explanation:
-
+ with the following explanation:
+</p>
+<p>
 {3}
-
-Your submission has not been deleted.  You can access it from your
+</p>
+<p>
+Your submission has not been deleted.  You can access it from your<br>
 "My DSpace" page: {4}
-
+</p>
 DSpace

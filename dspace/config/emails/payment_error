@@ -6,13 +6,15 @@
 # Shopping cart contents: {3}
 #
 Subject: Dryad: Error Receipt
-
+<p>
 There was a problem with the payment processing step in Dryad.
-
-Title of submission: {0}
-Submitter: {1}
-Error: {2}
-
+</p>
+<p>
+Title of submission: {0}<br>
+Submitter: {1}<br>
+Error: {2}<br>
+</p>
+<p>
 Shopping Cart Contents
-
+</p>
 {3}

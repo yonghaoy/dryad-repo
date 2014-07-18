@@ -6,16 +6,16 @@
 #
 Subject: DSpace: Submission Approved and Archived 
 
-You submitted: {0}
+You submitted: {0}<br>
 
-To collection: {1}
-
-Your submission has been accepted and archived in DSpace,
-and it has been assigned the following identifier:
+To collection: {1}<br>
+<p>
+Your submission has been accepted and archived in DSpace,<br>
+and it has been assigned the following identifier:<br>
 {2}
+</p>
+Please use this identifier when citing your submission<br>.
 
-Please use this identifier when citing your submission.
+Many thanks!<br>
 
-Many thanks!
-
-DSpace
+DSpace<br>

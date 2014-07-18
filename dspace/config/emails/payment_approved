@@ -5,22 +5,28 @@
 # {2}  Shopping Cart Contents
 #
 Subject: Dryad: Payment Receipt
-
-Receipt for Data Publishing Charges
-Dryad Digital Repository
-datadryad.org
-
+<p>
+Receipt for Data Publishing Charges<br>
+Dryad Digital Repository<br>
+datadryad.org<br>
+</p>
+<p>
 Thank you for your online payment of the Dryad Data Publishing Charge for the data submission described below:
-
+</p>
+<p>
 Received from: {1}
-
+</p>
+<p>
 Dryad submission: {0}
-
+</p>
+<p>
 Payment details:
-
+</p>
+<p>
 {2}
-
+</p>
+<p>
 Your data are now securely and permanently archived at datadryad.org.  
-
-The Dryad Team
+</p>
+The Dryad Team<br>
 datadryad.org

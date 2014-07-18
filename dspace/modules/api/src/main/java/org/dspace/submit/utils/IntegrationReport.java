@@ -16,12 +16,16 @@ import java.util.Set;
 import java.net.InetAddress;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import java.util.Date;
 import java.util.List;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 
 
 import org.dspace.core.Email;
@@ -66,16 +70,37 @@ public class IntegrationReport{
     public static final String IN_REVIEW = "<article_status>in review</article_status>"; 
     public static final String UNDER_REVIEW = "<article_status>under review</article_status>"; 
     public static final String REVISION_IN_REVIEW = "<article_status>revision in review</article_status>"; 
- 
-    public static DateUtil date_util = new DateUtil();
+    public static DateUtil date_util = new DateUtil(); 
     public static final java.util.Map<String, Map<String, String>> journalProperties = new HashMap<String, Map<String, String>>();
     public static final java.util.Map<String, Map<String, Map<String,String>>> article_in_review = new HashMap<String, Map<String, Map<String,String>>>();
     public static final java.util.Map<String, Map<String, Map<String,String>>> article_archived = new HashMap<String, Map<String, Map<String,String>>>();
 	public static void main(String[] args) throws Exception{
+
         String journalPropFile = ConfigurationManager.getProperty("submit.journal.config");
         Properties properties = new Properties();
 		Context myContext = new Context();
+        CommandLineParser parser = new PosixParser();
+        Options options = new Options();
+        options.addOption("f", "from", true, "Begin Date");
+        options.addOption("t", "to", true, "End Date");
+        CommandLine line = parser.parse(options, args);
+
+        String  beginDate = null;
+        String endDate = null;
+        if(line.hasOption("f")) {
+            beginDate = line.getOptionValue("f");
+        }
+        if(line.hasOption("t")) {
+            endDate = line.getOptionValue("t");
+        }
         try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date start_date;
+            Date end_date;
+            start_date = df.parse(beginDate);
+            end_date = df.parse(endDate);
+            date_util.setStartTime(start_date.getTime());
+            date_util.setEndTime(end_date.getTime());
             properties.load(new InputStreamReader(new FileInputStream(journalPropFile), "UTF-8"));
             String journalTypes = properties.getProperty("journal.order");
 
@@ -134,7 +159,7 @@ public class IntegrationReport{
 					File[] xmls = journal_folder.listFiles();
 					for(File xml : xmls){
 						    log.debug("reading xml file " + xml.getName());
-							if(date_util.isThisWeek(xml.lastModified())){
+							if(date_util.isThisPeriod(xml.lastModified())){
 									try{
 											BufferedReader br = new BufferedReader(new FileReader(xml.getPath()));
 											String line;
@@ -171,7 +196,7 @@ public class IntegrationReport{
 					for(File xml : xmls){
 						    log.debug("reading xml file " + xml.getName());
 						
-							if(date_util.isThisWeek(xml.lastModified())){
+							if(date_util.isThisPeriod(xml.lastModified())){
 									try{
 											BufferedReader br = new BufferedReader(new FileReader(xml.getPath()));
 											String line;
@@ -326,7 +351,7 @@ public class IntegrationReport{
 							if(row.getDateColumn("payment_date")!=null){
 								    log.info("payment_date: " + row.getDateColumn("payment_date"));
 									long pay_date = row.getDateColumn("payment_date").getTime();
-									if(date_util.isThisWeek(pay_date)){
+									if(date_util.isThisPeriod(pay_date)){
 											Map<String, String> map = new HashMap<String, String>();
 											int item_id = row.getIntColumn("item");
 											count_archived++;
@@ -369,7 +394,7 @@ public class IntegrationReport{
 							try {
 									format_date = df.parse(date);
 									long date_long = format_date.getTime();
-									if(date_util.isThisWeek(date_long)){
+									if(date_util.isThisPeriod(date_long)){
 											int item_id = row.getIntColumn("item_id");
 											Map<String, String> map = new HashMap<String, String>();
 											count_articles_in_review ++;
@@ -415,7 +440,7 @@ public class IntegrationReport{
 							try {
 									format_date = df.parse(date);
 									long date_long = format_date.getTime();
-									if(date_util.isThisWeek(date_long)){
+									if(date_util.isThisPeriod(date_long)){
 											int item_id = row.getIntColumn("item_id");
 											Map<String, String> map = new HashMap<String, String>();
 											count_articles_blackout ++;

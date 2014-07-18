@@ -8,8 +8,10 @@
 # See org.dspace.core.Email for information on the format of this file.
 #
 Subject: Dryad - Problem with the datacite EZID
+<p>
 A Datacite EZID {0} was not successfully completed, due to the following reason:
-
+</p>
+<p>
 {1}
-
-The item in question is: {2}
+</p>
+The item in question is: {2}<br>

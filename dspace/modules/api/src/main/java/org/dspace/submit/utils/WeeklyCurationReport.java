@@ -23,7 +23,11 @@ import java.util.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 
 import org.dspace.core.Email;
 import org.dspace.app.xmlui.utils.ContextUtil;
@@ -78,7 +82,28 @@ public class WeeklyCurationReport{
 		NUMBER_NON_INTE_BLACKOUT = 0;
         NUMBER_INTE_DEPOSITS = 0;
         NUMBER_NON_INTE_DEPOSITS = 0;
+        CommandLineParser parser = new PosixParser();
+        Options options = new Options();
+        options.addOption("f", "from", true, "Begin Date");
+        options.addOption("t", "to", true, "End Date");
+        CommandLine line = parser.parse(options, args);
+
+        String  beginDate = null;
+        String endDate = null;
+        if(line.hasOption("f")) {
+            beginDate = line.getOptionValue("f");
+        }
+        if(line.hasOption("t")) {
+            endDate = line.getOptionValue("t");
+        }
         try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date start_date;
+            Date end_date;
+            start_date = df.parse(beginDate);
+            end_date = df.parse(endDate);
+            date_util.setStartTime(start_date.getTime());
+            date_util.setEndTime(end_date.getTime());
             properties.load(new InputStreamReader(new FileInputStream(journalPropFile), "UTF-8"));
             String journalTypes = properties.getProperty("journal.order");
 		    
@@ -130,7 +155,7 @@ public class WeeklyCurationReport{
 							try {
 									format_date = df.parse(date);
 									long date_long = format_date.getTime();
-									if(date_util.isThisWeek(date_long)){
+									if(date_util.isThisPeriod(date_long)){
 											int item_id = row.getIntColumn("item_id");
 											process_archived(myContext,item_id);
 									}
@@ -200,7 +225,7 @@ public class WeeklyCurationReport{
 							try {
 									format_date = df.parse(date);
 									long date_long = format_date.getTime();
-									if(date_util.isThisWeek(date_long)){
+									if(date_util.isThisPeriod(date_long)){
 											NUMBER_HIDDEN_TO_PUBLIC++;
 											int item_id = row.getIntColumn("item_id");
 											process_hidden_to_public(myContext,item_id);
@@ -266,7 +291,7 @@ public class WeeklyCurationReport{
 							try {
 									format_date = df.parse(date);
 									long date_long = format_date.getTime();
-									if(date_util.isThisWeek(date_long)){
+									if(date_util.isThisPeriod(date_long)){
 											NUMBER_IN_REVIEW++;
 											int item_id = row.getIntColumn("item_id");
 									}
@@ -302,7 +327,7 @@ public class WeeklyCurationReport{
 							try {
 									format_date = df.parse(date);
 									long date_long = format_date.getTime();
-									if(date_util.isThisWeek(date_long)){
+									if(date_util.isThisPeriod(date_long)){
 											int item_id = row.getIntColumn("item_id");
                                                 if(!article_archived.containsKey(item_id)){
                                                     process_blackout(myContext,item_id);
@@ -379,7 +404,7 @@ public class WeeklyCurationReport{
 							try {
 									format_date = df.parse(date);
 									long date_long = format_date.getTime();
-									if(!date_util.isThisWeek(date_long)){
+									if(!date_util.isThisPeriod(date_long)){
 										    is_new = false;
 											return  false;
 									}

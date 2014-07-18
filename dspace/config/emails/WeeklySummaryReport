@@ -1,29 +1,40 @@
 # {0}  Date
+Subject:Weekly Curation Summary
+<p>
 In the last week (since {0}):
-
-New deposits from integrated journals: {1} ({2} are hidden pending article publication)
-New deposits from non-integrated journals: {3} ({4} are hidden pending article publication)
-New submissions to the review workspace: {5}
-Previously hidden deposits that became public: {6} 
-
+</p>
+<p>
+New deposits from integrated journals: {1} ({2} are hidden pending article publication)<br>
+New deposits from non-integrated journals: {3} ({4} are hidden pending article publication)<br>
+New submissions to the review workspace: {5}<br>
+Previously hidden deposits that became public: {6} <br>
+</p>
+<p>
 <b>Non-integrated journals with new submissions accepted into publication blackout: </b>
+<br>
 {7}
-
+</p>
+<p>
 <b>Non-integrated journals with new deposits associated with already published articles:</b>
+<br>
 {8}
-
+</p>
+<p>
 <b>Journals associated with previously hidden submissions that became public this week:</b>
+<br>
 {9}
-
-<b>Curation time tracking:</b> 
-Approx curation hours this week = 
-Approx portion of assistant curator time spent directly on curation = 
-Approx portion of senior curator time spent directly on curation = 
-
-
-Summary statistics may be found here:
-https://www.nescent.org/wg_dryad/Curation_Summaries
-
-
+</p>
+<p>
+<b>Curation time tracking:</b> <br>
+Approx curation hours this week = <br>
+Approx portion of assistant curator time spent directly on curation = <br>
+Approx portion of senior curator time spent directly on curation = <br>
+</p>
+<p>
+Summary statistics may be found here:<br>
+https://www.nescent.org/wg_dryad/Curation_Summaries<br>
+</p>
+<p>
 Have a great weekend!
 Thank you!
+</p>

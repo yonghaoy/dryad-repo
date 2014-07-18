@@ -10,18 +10,19 @@
 # {4}  Link to 'My DSpace' page
 #
 Subject: Your submission to Dryad 
-
+<p>
 You previously submitted a data package to Dryad titled: {0}
-
-This data package contained the following data files:
+</p>
+<p>This data package contained the following data files:<br>
 {1}
-
-This submission has been returned to your working space by Dryad curator {2}
-with the following explanation:
+</p>
+<p>
+This submission has been returned to your working space by Dryad curator {2}<br>
+with the following explanation:<br>
 
 {3}
-
-You can view, modify, and resubmit the data from your
+</p>
+<p>You can view, modify, and resubmit the data from your
 "My Submissions" page at http://datadryad.org/submissions
-
+</p>
 The Dryad Team

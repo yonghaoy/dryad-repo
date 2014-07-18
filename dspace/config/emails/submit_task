@@ -8,17 +8,17 @@
 #
 Subject: DSpace: You have a new task
 
-A new item has been submitted:
+<p>A new item has been submitted:</p>
 
-Title:        {0}
-Collection:   {1}
-Submitted by: {2}
+Title:        {0}<br>
+Collection:   {1}<br>
+Submitted by: {2}<br>
 
 {3}
+<br>
+To claim this task, please visit your "My DSpace"<br>
+page:  {4}<br>
 
-To claim this task, please visit your "My DSpace"
-page:  {4}
+Many thanks!<br>
 
-Many thanks!
-
-DSpace
+DSpace<br>

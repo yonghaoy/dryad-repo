@@ -10,30 +10,37 @@
 # {5}  The manuscript identifier (or "none available" if the metadata doesn't contain one)
 #
 Subject: Dryad submission approved pending publication {1}
-
+<p>
 Dear {4},
-
+</p>
+<p>
 Your submission to the Dryad repository has been approved, and will be available in the repository once the associated article has been published.  Your data package has been approved and assigned a unique identifier, called a DOI.
-
-Title: {0}
-Data identifier: {1}
-Journal manuscript number: {5}
-
+</p>
+<p>
+Title: {0}<br>
+Data identifier: {1}<br>
+Journal manuscript number: {5}<br>
+</p>
+<p>
 You will receive another email when your data is made available.  If you did not request a data embargo, your data will be publicly available after the article is published.
-
+</p>
+<p>
 Ensure that your readers can find your data!
-
-We recommend that the article include a link to the Dryad data as follows:
+</p>
+<p>
+We recommend that the article include a link to the Dryad data as follows:<br>
 Data available from the Dryad Digital Repository: http://doi.org/10.5061/dryad.NNNNN 
-
-Check out the information for depositors at http://datadryad.org/pages/faq
-- How do I refer to my Dryad data in my article?
-- How can I see how often my data package is viewed and downloaded?
-- How can I add my data package to a Data section on my CV?
-- If my data files are embargoed, when will they be released?
-- and more!
-
+</p
+<p>>
+Check out the information for depositors at http://datadryad.org/pages/faq<br>
+- How do I refer to my Dryad data in my article?<br>
+- How can I see how often my data package is viewed and downloaded?<br>
+- How can I add my data package to a Data section on my CV?<br>
+- If my data files are embargoed, when will they be released?<br>
+- and more!<br>
+</p>
+<p>
 Thanks again for taking this important step to preserve and share your research data. We welcome your feedback! Contact us at help@datadryad.org.
-
-The Dryad Team
+</p>
+The Dryad Team<br>
 datadryad.org 

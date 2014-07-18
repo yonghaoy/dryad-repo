@@ -8,15 +8,16 @@
 # {3}  Reason for the rejection
 # {4}  Link to 'My DSpace' page
 #
-Subject: Dryad: Data package returned
-
-You submitted a data package to Dryad titled: {0}
-with the following data files:
+<p>Subject: Dryad: Data package returned</p>
+<p>
+You submitted a data package to Dryad titled: {0}<br>
+with the following data files:<br>
 {1}
-
+</p>
+<p>
 The journal has notified Dryad that the associated article is no longer under review. Therefore, the Dryad data package has been returned to your personal workspace, and will not be reviewed by the Dryad curators. This data package will be available in your workspace for a period of one year.
+</p>
+Your submission has not been deleted.  You can access it from your<br>
+"My Submissions" page at http://datadryad.org/submissions<br>
 
-Your submission has not been deleted.  You can access it from your
-"My Submissions" page at http://datadryad.org/submissions
-
-The Dryad Team
+The Dryad Team<br>

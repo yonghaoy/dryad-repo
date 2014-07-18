@@ -8,12 +8,13 @@
 # See org.dspace.core.Email for information on the format of this file.
 #
 Subject: Dryad - Problem with the bagit exporter
-A bagit export was not successfully completed, due to the following reason:
 
+<p>A bagit export was not successfully completed, due to the following reason:</p>
+<p>
 {0}
- 
-The item was requested by {1}
- 
-The item in question is {2}
- 
-The location of the work products is {3}
+</p>
+The item was requested by {1} <br>
+<br> 
+The item in question is {2} <br>
+ <br>
+The location of the work products is {3}<br>

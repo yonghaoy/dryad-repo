@@ -9,12 +9,17 @@
 # See org.dspace.core.Email for information on the format of this file.
 #
 Subject: Dryad: Harvesting Error
+<p>
 Collection {0} failed on harvest:
-
-Date:       	{1}
-Status Flag: 	{2}
-
+</p>
+<p>
+Date:       	{1}<br>
+Status Flag: 	{2}<br>
+</p>
+<p>
 {3}
-
-Exception:
+</p>
+<p>
+Exception:<br>
 {4}
+</p>

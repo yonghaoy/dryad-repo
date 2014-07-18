@@ -9,9 +9,11 @@
 # See org.dspace.core.Email for information on the format of this file.
 #
 Subject: Dryad: Registration Notification
-
+<p>
 A new user has registered on {0} at {1}:
-
-Name:                   {2}
-Email:                  {3}
-Date:                   {4}
+</p>
+<p>
+Name:                   {2}<br>
+Email:                  {3}<br>
+Date:                   {4}<br>
+</p>

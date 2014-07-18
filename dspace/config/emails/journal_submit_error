@@ -9,7 +9,7 @@
 # This email goes to the DSpace ${mail.admin} email account
 #
 Subject: Journal-Submit Problem
-Journal submit failed to complete, due to the following reason:
+<p>Journal submit failed to complete, due to the following reason<br>:
  {0}
-
- Check the logs at '{1}' for more details
+</p>
+ Check the logs at '{1}' for more details<br>
