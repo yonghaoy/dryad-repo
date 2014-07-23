@@ -64,10 +64,18 @@ public class WeeklyCurationReport{
     public static int NUMBER_INTE_DEPOSITS;
     public static int NUMBER_NON_INTE_DEPOSITS;
     public static DateUtil date_util = new DateUtil();
+
+    //the hashmao stores all integrated journals' properities
     public static final java.util.Map<String, Map<String, String>> inte_journalProperties = new HashMap<String, Map<String, String>>();
+   
+    //the hashmap stores information of all non-integrated journals' archived submissions number 
     public static final java.util.Map<String, Integer> non_inte_journal_archived = new HashMap<String, Integer>();
     public static final java.util.Map<String, Integer> non_inte_journal_blackout = new HashMap<String, Integer>();
+
+    //the hashmap stores number of journals from hidden to public submissions
     public static final java.util.Map<String, Integer> journal_hidden_to_public = new HashMap<String, Integer>();
+
+    //the hashmap stores number of journals' archived 
     public static final java.util.Map<Integer,String> article_archived= new HashMap<Integer,String>();
 	public static void main(String[] args) throws Exception{
 
@@ -82,6 +90,8 @@ public class WeeklyCurationReport{
 		NUMBER_NON_INTE_BLACKOUT = 0;
         NUMBER_INTE_DEPOSITS = 0;
         NUMBER_NON_INTE_DEPOSITS = 0;
+
+        //commandLine parser are used to input start date and end date user want to count
         CommandLineParser parser = new PosixParser();
         Options options = new Options();
         options.addOption("f", "from", true, "Begin Date");
@@ -139,6 +149,11 @@ public class WeeklyCurationReport{
 
     }
 
+    /*
+     * counts number of all archived submissions.
+     * the method read from METADATAVALUE table's provenance field.
+     * Provenance field contains all the information about submission date, publication blackout information, archived date.
+     */
 	public static void count_archived(Context myContext) throws Exception{
 			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE text_value like '%Made available in DSpace%';");
 			try{

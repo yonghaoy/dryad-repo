@@ -52,6 +52,8 @@ import org.dspace.core.I18nUtil;
 public class IntegrationReport{
     
     private static Logger log = Logger.getLogger(IntegrationReport.class);
+
+    //the following Strings are journals' configuration properities
     public static final String FULLNAME = "fullname";
 	public static final String METADATADIR = "metadataDir";
     public static final String INTEGRATED = "integrated";
@@ -65,11 +67,13 @@ public class IntegrationReport{
     public static final String NUMBER_ARCHIVED = "number_archived";
     public static final String NUMBER_HIDDEN_TO_PUBLIC = "number_hidder_to_public";
 
+    //the following String are used when read xml file and count the number accepted or in review
     public static final String ACCEPTED = "<article_status>accepted</article_status>"; 
     public static final String SUBMITTED = "<article_status>submitted</article_status>"; 
     public static final String IN_REVIEW = "<article_status>in review</article_status>"; 
     public static final String UNDER_REVIEW = "<article_status>under review</article_status>"; 
     public static final String REVISION_IN_REVIEW = "<article_status>revision in review</article_status>"; 
+   
     public static DateUtil date_util = new DateUtil(); 
     public static final java.util.Map<String, Map<String, String>> journalProperties = new HashMap<String, Map<String, String>>();
     public static final java.util.Map<String, Map<String, Map<String,String>>> article_in_review = new HashMap<String, Map<String, Map<String,String>>>();
@@ -78,7 +82,9 @@ public class IntegrationReport{
 
         String journalPropFile = ConfigurationManager.getProperty("submit.journal.config");
         Properties properties = new Properties();
-		Context myContext = new Context();
+	    Context myContext = new Context();
+        
+        //commandLine parser are used to input start date and end date user want to count
         CommandLineParser parser = new PosixParser();
         Options options = new Options();
         options.addOption("f", "from", true, "Begin Date");
@@ -104,6 +110,9 @@ public class IntegrationReport{
             properties.load(new InputStreamReader(new FileInputStream(journalPropFile), "UTF-8"));
             String journalTypes = properties.getProperty("journal.order");
 
+            /*Read from journal properities and get integrated journals
+             * a hashmap is uesd to store all useful information of each journal
+            */
             for (int i = 0; i < journalTypes.split(",").length; i++) {
                 String journalType = journalTypes.split(",")[i].trim();
                 String str = "journal." + journalType + ".";
@@ -151,7 +160,11 @@ public class IntegrationReport{
 
     }
 
-	//count number of accepted publications
+    /*
+     * count number of notifications of accepted journals
+     * workflow: read xml files according journal directory and read file line by line
+     * if line contains accepted signal, count the xml file and store it in journal's hashmap
+     */ 
 	public static int count_accept(String journal_dir){
 			File journal_folder = new File(journal_dir);
 			int count_accepted = 0;
@@ -186,7 +199,12 @@ public class IntegrationReport{
 
 	}
 
-    //count number of in review publications
+
+    /*
+     * count number of notifications of review journals
+     * workflow: read xml files according journal directory and read file line by line
+     * if line contains review signal, count the xml file and store it in journal's hashmap
+     */ 
     public static int count_review(String journal_dir){
 			File journal_folder = new File(journal_dir);
 			int count_review = 0;
@@ -223,6 +241,11 @@ public class IntegrationReport{
 		    return count_review; 	
 
     }
+
+    /*
+     * send email to each journals.
+     * the email is html format.
+     */
 	public static void sendEmail(Context myContext) throws Exception{
 			for(Map.Entry<String,Map<String,String>> journal : journalProperties.entrySet()){
 					Map<String,String> journal_entry = journal.getValue();
@@ -338,6 +361,12 @@ public class IntegrationReport{
 
 	}
 
+    /*
+     * counts archived submissions
+     * the method use shopping cart table and get payment date.
+     * Provenance field contains all the information about submission date, publication blackout information, archived date.
+     * if payment date is not null, the submission is archived
+     */
 	public static int count_archived(Context myContext, String journal_name) throws Exception{
 			int count_archived = 0;
 			TableRowIterator rows = DatabaseManager.queryTable(myContext, "shoppingcart", "SELECT * FROM shoppingcart WHERE journal = '"+ journal_name + "';");
@@ -375,6 +404,14 @@ public class IntegrationReport{
 			}
 		    return count_archived;		
 	}
+
+    /*
+     * count deposits in review and store results in journal's hashmao.
+     * the method use METADATAVALUE table. 
+     * Provenance field contains all the information about submission date, publication blackout information, archived date.
+     * the current method doesn't works well, the review is just means submissions.
+     * The current dryad database doesn't have a field to store in review information.
+     */
 	public static int count_deposit_in_review(Context myContext, String journal_full_name) throws Exception{
 				
 		    int count_articles_in_review = 0;
@@ -422,6 +459,13 @@ public class IntegrationReport{
             return count_articles_in_review;
 
 	}
+
+    /*
+     * count numbers of submissions which into publication blackout.
+     * the method use METADATAVALUE table in database.
+     * it will query all items contain provenance's fiels like"arrproved for entry into archived"
+     * Provenance field contains all the information about submission date, publication blackout information, archived date.
+     */
 	public static int count_blackout(Context myContext, String journal_full_name) throws Exception{
 				
 		    int count_articles_blackout = 0;
@@ -461,6 +505,8 @@ public class IntegrationReport{
             return count_articles_blackout;
 
 	}
+
+    //get submission's doi according to its item id
 	public static String get_doi(Context myContext, int item_id) throws Exception{
 			TableRowIterator rows = DatabaseManager.queryTable(myContext,"METADATAVALUE","SELECT * FROM METADATAVALUE where metadata_field_id=17 and item_id=" + item_id +" limit 1");
 			String text_value_str = "the doi is not available";
@@ -482,6 +528,8 @@ public class IntegrationReport{
 			return text_value_str;
 
 	}
+
+    //get submission's manu number accroding item id.
 	public static String get_manu_number(Context myContext, int item_id) throws Exception{
 			TableRowIterator rows = DatabaseManager.queryTable(myContext,"METADATAVALUE","SELECT * FROM METADATAVALUE where metadata_field_id=74 and item_id=" + item_id +" limit 1");
 			String text_value_str = "the manucsript number is not available";
@@ -504,6 +552,8 @@ public class IntegrationReport{
 			return text_value_str;
 	}
 
+    //get author name according to item id.
+    //the current method just get the submitter's information, it doesn't get all the authors of a submission
 	public static String get_author(Context myContext, int item_id) throws Exception{
 			TableRowIterator rows = DatabaseManager.queryTable(myContext,"EPERSON","select * FROM eperson WHERE eperson_id=(select submitter_id from ITEM WHERE item_id="+item_id+");");
 			String author_last_name = "the author is not available";
