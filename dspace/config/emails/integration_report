@@ -31,9 +31,10 @@ Please find the data DOIs for new deposits below, for inclusion in the published
 <p>
 {7}
 </p>
-<p>
-We recommend that journals include a link in the article to the Dryad data as follows:<br>
-Data available from the Dryad Digital Repository: http://doi.org/10.5061/dryad.NNNNN
+<br>
+<p style="color:#FF0000"><b>We recommend that journals include a link in the article to the Dryad data as follows:</b>
+</p>
+<p>Data available from the Dryad Digital Repository: http://doi.org/10.5061/dryad.NNNNN
 </p>
 <p>
 Dryad links the data files to the published articles; it is up to journals to link published articles to their supporting data. Journal staff and authors collaborate to ensure that data DOIs are included in the appropriate locations for the print and online versions of published articles.

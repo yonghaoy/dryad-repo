@@ -150,7 +150,7 @@ public class WeeklyCurationReport{
     }
 
     /*
-     * counts number of all archived submissions.
+     * counts number of all archived submissions and then call process_archived to judge whether the item is in which journal
      * the method read from METADATAVALUE table's provenance field.
      * Provenance field contains all the information about submission date, publication blackout information, archived date.
      */
@@ -188,7 +188,11 @@ public class WeeklyCurationReport{
 					}
 			}
     }
-	public static void process_archived(Context myContext,int item_id) throws Exception{
+
+    /*
+     * the method process each archived item and find the journal for each item.
+     */
+    public static void process_archived(Context myContext,int item_id) throws Exception{
 		
 			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE metadata_field_id=97 and item_id=" + item_id + ";");
 			try{
@@ -223,6 +227,10 @@ public class WeeklyCurationReport{
 	
 	}
 
+    /*
+     * count number of submissions from hidden to public during a given period.
+     * The method will get all items from hidden to public during the period, and then call process_hidden to public to process each item
+     */
 	public static void count_hidden_to_public(Context myContext) throws Exception{
 				
 			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE text_value like '%action:afterPublicationAction Approved for entry into archive%';");
@@ -261,6 +269,9 @@ public class WeeklyCurationReport{
 
 	}
 
+    /*
+     * the method read item_id from count_hidden_to_public method and find the joural for each item
+     */
 	public static void process_hidden_to_public(Context myContext,int item_id) throws Exception{
 		
 			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE metadata_field_id=97 and item_id=" + item_id + ";");
@@ -289,7 +300,10 @@ public class WeeklyCurationReport{
 			
 	
 	}
-	public static void count_in_review(Context myContext) throws Exception{
+	
+    /* The current method doesn't work well, it just count the submissions in review
+     */
+    public static void count_in_review(Context myContext) throws Exception{
 				
 			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE text_value like '%start=Step: requiresReviewStep%';");
 			try{
@@ -325,6 +339,9 @@ public class WeeklyCurationReport{
 
 	}
 
+    /*
+     * the method count all submissions come into publication blackout and call process_backout to deal with each item
+     */
 	public static void count_blackout(Context myContext) throws Exception{
 				
 			TableRowIterator item_rows = DatabaseManager.queryTable(myContext, "METADATAVALUE", "SELECT * FROM METADATAVALUE WHERE text_value like '%Entered publication blackout%';");
@@ -364,6 +381,9 @@ public class WeeklyCurationReport{
 
 	}
 
+    /*
+     * the method process each item to find the item's journal
+     */
 	public static void process_blackout(Context myContext,int item_id) throws Exception{
 	
 	
@@ -400,6 +420,11 @@ public class WeeklyCurationReport{
 	
 	}
 
+    /*
+     * the method return a boolean whether a journal is new journal
+     * it will find all items for the journal, if all items came this period, it will return true
+     * else, it will return false
+     */
 	public static boolean is_new_journal(Context myContext, String journal_name) throws Exception{
 		
 			boolean is_new = true;
@@ -438,7 +463,10 @@ public class WeeklyCurationReport{
 			}
 			return is_new;
 	}
-	public static void sendEmail(Context myContext) throws Exception{
+	
+    //send a html email to curator
+    //now the current receive person is yyhao1@gmail.com
+    public static void sendEmail(Context myContext) throws Exception{
 	
 				Email email = ConfigurationManager.getEmail(I18nUtil.getEmailFilename(myContext.getCurrentLocale(), "WeeklySummaryReport"));;
 				
